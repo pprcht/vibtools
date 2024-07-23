@@ -67,7 +67,10 @@ which should produce the following output:
 
 The program uses the read-in unmodified Hessian and structure to first calculate the mass-weighted one and project out translation and rotation of the molecule.
 By diagonalization of the mass-weighted Hessian, vibrational frequencies and the corresponding normal modes are determined. 
-Finally, the Cartesian dipole derivatives are projected along the modes to determine IR intensities according to the doubly-harmonic approximation.
+Finally, the Cartesian dipole derivatives $\frac{\partial \mu}{\partial R}$ are projected along the modes $Q_p^{(m)}$ to determine IR intensities $A_{\tilde{\nu_p}}$ according to the doubly-harmonic approximation:
+```math
+A_{\tilde{\nu_p}} \propto \left(\frac{\partial{\mu}}{\partial{Q^{(m)}_p}}\right)^2= \sum_{\alpha} \left( \sum^{3N_\mathrm{at}}_{j} \frac{\partial{\mu_{\alpha}}}{\partial{R_j}} \frac{\partial{{R_j}}}{\partial{Q}^{(m)}_{p,j}}  \right)^2
+```
 
 
 The produced `vibspectrum` file can be processed further by the command
