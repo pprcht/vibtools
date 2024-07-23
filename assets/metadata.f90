@@ -1,0 +1,7 @@
+character(len=*),parameter :: version = "@version@"
+character(len=*),parameter :: commit = "@commit@"
+character(len=*),parameter :: date = "@date@"
+character(len=*),parameter :: author = "'@author@@@origin@'"
+character(len=*),parameter :: fcompiler = "@fcid@ @fcver@"
+character(len=*),parameter :: ccompiler = "@ccid@ @ccver@"
+character(len=*),parameter :: bsystem = "@bsystem@"
