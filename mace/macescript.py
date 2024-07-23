@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import argparse
 from mace.calculators import mace_off
 from ase import build
@@ -15,7 +16,10 @@ def setup_singlepoint(input_file, model_type='medium'):
     atoms = read(input_file)
     calc = mace_off(model=model_type, default_type="float64", device='cpu')
     atoms.calc = calc
+    start=time.time()
     print(f"\nInitial single point energy (Hartree): {atoms.get_potential_energy() / Hartree}") 
+    finish=time.time()
+    print(f"time {finish-start:.3f} s")
 #    dipole = get_dipole()
 #    totdipole = np.linalg.norm(dipole, ord=2) * au_to_debye
 #    print(f"Molecular dipole moment (x,y,z)/au, tot/Debye : {dipole}, {totdipole} \n")

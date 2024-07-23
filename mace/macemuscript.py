@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import argparse
 from mace.calculators import MACECalculator
 from ase import build
@@ -23,11 +24,14 @@ def get_dipole(atoms, calc):
 def setup_singlepoint(input_file, model_type='DipoleMACE', model_path=None):
     atoms = read(input_file)
     calc = MACECalculator(model_path, device='cpu', default_dtype='float64', model_type=model_type)
+    start=time.time()
     dipole = get_dipole(atoms, calc)
+    finish=time.time()
     totdipole = np.linalg.norm(dipole)
     dipole = dipole 
     print(f"Molecular dipole moment (x,y,z): {dipole[0]} {dipole[1]} {dipole[2]} \n")
     print(f"Total dipole moment: {totdipole} \n")
+    print(f"time {finish-start:.3f} s")
     return atoms,calc
 
 ###################################################################################################
