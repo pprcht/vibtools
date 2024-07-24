@@ -68,12 +68,12 @@ print('%30s %22s %22s %15s' % ('System', 'reference dipole [D]', 'predicted dipo
 with open(args.csv, 'w', newline='') as csvfile:
     csvwriter = csv.writer(csvfile)
     csvwriter.writerow(['Name', 'Dip_x', 'Dip_y', 'Dip_z'])
-    for atoms in iread(dataset):
+    for i,atoms in enumerate(iread(dataset)):
         start_time = time.time()
         calc.get_property('dipole', atoms=atoms)
         mstime = (time.time() - start_time) * 1000
         timings += mstime / 1000
-        name = atoms.info['name']
+        name = atoms.info.get('name', f'molecule_{i}')
         dip = calc.results['dipole'] / au_to_ang
         ref = atoms.info['REF_dipole']
         tot_dip = numpy.linalg.norm(dip) * au_to_debye
