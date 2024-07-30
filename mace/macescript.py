@@ -16,13 +16,10 @@ def setup_singlepoint(input_file, model_type='medium'):
     atoms = read(input_file)
     calc = mace_off(model=model_type, default_type="float64", device='cpu')
     atoms.calc = calc
-    start=time.time()
     print(f"\nInitial single point energy (Hartree): {atoms.get_potential_energy() / Hartree}") 
-    finish=time.time()
-    print(f"time {finish-start:.3f} s")
-#    dipole = get_dipole()
-#    totdipole = np.linalg.norm(dipole, ord=2) * au_to_debye
-#    print(f"Molecular dipole moment (x,y,z)/au, tot/Debye : {dipole}, {totdipole} \n")
+    dipole = get_dipole()
+    totdipole = np.linalg.norm(dipole, ord=2) * au_to_debye
+    #print(f"Molecular dipole moment (x,y,z)/au, tot/Debye : {dipole}, {totdipole} \n")
     return atoms,calc
 
 ##################################################################################################
@@ -80,12 +77,12 @@ def calculate_numerical_hessian(atoms, displace=1e-3):
             # Positive displacement
             atoms.positions[i][j] += dx
             forces_plus = -atoms.get_forces()
-            dipole_plus = get_dipole()            
+            #dipole_plus = get_dipole()            
 
             # Negative displacement
             atoms.positions[i][j] -= 2 * dx
             forces_minus = -atoms.get_forces()
-            dipole_minus = get_dipole()
+            #dipole_minus = get_dipole()
             
             # Reset the position
             atoms.positions[i][j] = original_positions[i][j]
@@ -101,17 +98,17 @@ def calculate_numerical_hessian(atoms, displace=1e-3):
                 for l in range(3):
                     hessian[3 * i + j, 3 * k + l] = derivative[k][l]
 
-#            # Fill the numerical dipole derivatives
-#            ii = i*3+j
-#            for l in range(3): 
-#               dipgrad[l,ii] = (dipole_plus[l] - dipole_minus[l]) / (2*dx)
+            # Fill the numerical dipole derivatives
+            #ii = i*3+j
+            #for l in range(3): 
+            #   dipgrad[l,ii] = (dipole_plus[l] - dipole_minus[l]) / (2*dx)
 
     finish=time.time()    
     print(f"Done. {finish-start:.3f} s")
     # Symmetrize the Hessian matrix
     hessian = 0.5 * (hessian + hessian.T)
 
-    return hessian #,dipgrad
+    return hessian#,dipgrad
 
 ###################################################################################################
 
@@ -231,19 +228,20 @@ def main():
     # Run calculations based on the specified run type
     if args.opt or args.ohess:
         run_optimization(atoms, model_type)
-#        atoms.write('test.json')
+        atoms.write('test.json')
+        atoms.write('test.json')
         wrgeo=True 
     if args.hess or args.ohess:
         if args.num:
-#          hessian_matrix,dipole_derivatives = calculate_numerical_hessian(atoms, displace=args.dx)
+          #hessian_matrix,dipole_derivatives = calculate_numerical_hessian(atoms, displace=args.dx)
           hessian_matrix = calculate_numerical_hessian(atoms, displace=args.dx)
           print("\nHessian Matrix (numerical):")
           print(hessian_matrix)
           write_tm_hessian(hessian_matrix, f"numhess.{model_type}")
-#          print("\nDipole derivatives")
-#          print(dipole_derivatives)
-#          write_dipgrad(dipole_derivatives, f"dipgrad.{model_type}")
-#          wrhess=True
+          #print("\nDipole derivatives")
+          #print(dipole_derivatives)
+          #write_dipgrad(dipole_derivatives, f"dipgrad.{model_type}")
+          wrhess=True
         else:
           hessian_matrix = calculate_autograd_hessian(atoms,calc)
           print("\nHessian matrix (autograd):")
@@ -259,7 +257,7 @@ def main():
         if wrhess:
            if args.num:
              print(f" - numhess.{model_type}")
-#             print(f" - dipgrad.{model_type}")
+             #print(f" - dipgrad.{model_type}")
            else: 
              print(f" - autogradhess.{model_type}")
 
