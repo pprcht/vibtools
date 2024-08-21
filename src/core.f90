@@ -149,7 +149,7 @@ contains  !> MODULE PROCEDURES START HERE
     integer,intent(in) :: at(nat)
     real(wp),intent(in) :: xyz(3,nat)
     real(wp),intent(inout) :: hess(3*nat,3*nat)
-    real(wp),intent(in) :: dipd(3,nat)
+    real(wp),intent(in) :: dipd(3,nat*3)
     real(wp),intent(in) :: amass(118)
     real(wp),intent(in) :: fscal
     !> OUTPUT

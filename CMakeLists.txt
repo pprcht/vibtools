@@ -30,7 +30,7 @@ option(INSTALL_MODULES "Install Fortran module files to include directory." FALS
 # Setup the irtools Project
 project(
   irtools
-  LANGUAGES "C" "Fortran"
+  LANGUAGES "Fortran" "C" "CXX"
   VERSION  0.1 
   DESCRIPTION "Tool for creating IR spectra in the double harmonic approximation"
 )
@@ -132,6 +132,30 @@ target_include_directories(
    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 )
 
+
+
+###############################################################################
+################################ python bindings ##############################
+###############################################################################
+if (PYTHON_BINDINGS)
+find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
+find_package(pybind11 REQUIRED)
+
+# Add the pybind11 module
+python_add_library(_pyirtools src/pyirtools.cpp WITH_SOABI)
+
+# Link against any existing libraries if necessary
+target_link_libraries(_pyirtools
+                      PRIVATE
+                      "lib-${PROJECT_NAME}-static"
+                      pybind11::headers)
+
+# This is passing in the version as a define
+target_compile_definitions(_pyirtools PRIVATE VERSION_INFO=${PROJECT_VERSION})
+
+# The install directory is the output (wheel) directory
+install(TARGETS _pyirtools DESTINATION pyirtools)
+endif()
 
 ###############################################################################
 ########################### Install Instructions ##############################

@@ -40,6 +40,8 @@ install(
 # Options for enabling or disabling features
 option(WITH_OpenMP  "Enable OpenMP support"       TRUE)
 option(WITH_TESTS   "Enable unit tests"           TRUE)
+option(PYTHON_BINDINGS "Compile python bindings"  FALSE)
+
 
 #########################################################################################
 #########################################################################################
