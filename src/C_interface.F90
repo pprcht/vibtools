@@ -68,6 +68,7 @@ contains  !> MODULE PROCEDURES START HERE
     real(wp) :: fscal
     real(wp),pointer :: freq(:)
     real(wp),pointer :: ints(:)
+    real(wp),allocatable :: freqtmp(:),intstmp(:)
 
     nat = c_nat
     fscal = c_fscal
@@ -80,12 +81,17 @@ contains  !> MODULE PROCEDURES START HERE
     call c_f_pointer(c_loc(c_freq),freq, [3*c_nat])  
     call c_f_pointer(c_loc(c_ints),ints, [3*c_nat])
 
-    call computespec_core(nat,at,xyz,hess,dipd,ams,fscal,freq,ints)
+    call computespec_core(nat,at,xyz,hess,dipd,ams,fscal,freqtmp,intstmp)
+    
+    freq(:) = freqtmp(:)
+    ints(:) = intstmp(:)
 
     c_hess(1:3*nat,1:3*nat) = hess(1:3*nat,1:3*nat)
     c_freq(1:3*nat) = freq(1:3*nat)
     c_ints(1:3*nat) = ints(1:3*nat)
 
+    if(allocated(intstmp)) deallocate(intstmp)
+    if(allocated(freqtmp)) deallocate(freqtmp)
   end subroutine c_computespec_core
 
 !========================================================================================!

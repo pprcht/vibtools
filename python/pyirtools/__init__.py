@@ -1,6 +1,6 @@
 # pyirtools/__init__.py
   
-from ._pyirtools import  __version__
+from ._irtools import  __version__
+from .calculator import IRtoolsCalculator
 
-
-__all__ = ["__version__"]
+__all__ = ["__version__","IRtoolsCalculator]

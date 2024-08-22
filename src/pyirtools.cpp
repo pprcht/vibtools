@@ -8,7 +8,7 @@
 namespace py = pybind11;
 
 // Wrapper for the c_computespec_core function
-void computespec_core(int32_t nat, py::array_t<int32_t> at,
+void py_computespec_core(int32_t nat, py::array_t<int32_t> at,
                       py::array_t<double> xyz, py::array_t<double> hess,
                       py::array_t<double> dipd, py::array_t<double> ams,
                       double fscal, py::array_t<double> freq,
@@ -44,10 +44,10 @@ void computespec_core(int32_t nat, py::array_t<int32_t> at,
                      freq_ptr, ints_ptr);
 }
 
-PYBIND11_MODULE(_pyirtools, m) {
+PYBIND11_MODULE(_irtools, m) {
   m.doc() = "Python bindings for IRtools";
 
-  m.def("computespec_core", &computespec_core, "Compute spectrum core function");//,
+  m.def("py_computespec_core", &py_computespec_core, "Compute spectrum core function");//,
 //       py::arg("nat"), py::arg("at"), py::arg("xyz"), py::arg("hess"),
 //       py::arg("dipd"), py::arg("ams"), py::arg("fscal"), py::arg("freq"),
 //       py::arg("ints"));

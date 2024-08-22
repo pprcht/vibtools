@@ -32,7 +32,7 @@ module irtools_core
   implicit none
   private
 
-  public :: computespec
+  public :: computespec, computespec_core
   interface computespec
     module procedure :: computespec_wrapper
     module procedure :: computespec_core
