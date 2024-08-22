@@ -14,8 +14,8 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "pyirtools"
-version = "0.0.1"
-description = "A Python interface to the irtools Fortran code"
+version = "0.1"
+description = "A Python interface to the IRtools Fortran code"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
