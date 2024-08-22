@@ -2,7 +2,7 @@ import numpy as np
 from ase import Atoms
 from ase.data import atomic_masses
 from ase.units import Bohr,Hartree
-from ._pyirtools import computespec_core
+from ._irtools import py_computespec_core
 
 class IRtoolsCalculator:
     def __init__(self, atoms: Atoms, hessian: np.ndarray, dipole_gradient: np.ndarray, fscal: float = 1.0):
@@ -47,7 +47,7 @@ class IRtoolsCalculator:
         self.intens = np.zeros(3 * nat, dtype=np.float64)
 
         # Call the Fortran routine via the C++ wrapper
-        computespec_core(nat, at, xyz, self.hessian, self.dipole_gradient, self.amass, self.fscal, self.freq, self.intens)
+        py_computespec_core(nat, at, xyz, self.hessian, self.dipole_gradient, self.amass, self.fscal, self.freq, self.intens)
 
         return self.freq, self.intens
 
