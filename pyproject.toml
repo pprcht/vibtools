@@ -1,0 +1,74 @@
+# python setup for pyxhcfflib
+# use 
+#   pip install .
+# to install. Requires scikit-build and pybind11
+
+[build-system]
+requires = [
+    "scikit-build-core>=0.3.3",
+    "pybind11",
+    "cmake>=3.18",
+    "ninja",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pyirtools"
+version = "0.0.1"
+description = "A Python interface to the irtools Fortran code"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Philipp Pracht", email = "research@philipp-pracht.de" },
+]
+requires-python = ">=3.7"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+  "ase>=3.22.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/pprcht/irtools"
+
+[tool.scikit-build]
+wheel.expand-macos-universal-tags = true
+
+[tool.scikit-build.cmake]
+args = [
+  "-DPYTHON_BINDINGS=ON"
+]
+
+
+# linter stuff, in case it is installed
+[tool.ruff]
+src = ["python/pyirtools"]
+
+[tool.ruff.lint]
+extend-select = [
+  "B",           # flake8-bugbear
+  "I",           # isort
+  "ARG",         # flake8-unused-arguments
+  "C4",          # flake8-comprehensions
+  "EM",          # flake8-errmsg
+  "ICN",         # flake8-import-conventions
+  "G",           # flake8-logging-format
+  "PGH",         # pygrep-hooks
+  "PIE",         # flake8-pie
+  "PL",          # pylint
+  "PT",          # flake8-pytest-style
+  "PTH",         # flake8-use-pathlib
+  "RET",         # flake8-return
+  "RUF",         # Ruff-specific
+  "SIM",         # flake8-simplify
+  "T20",         # pyupgrade
+]
+

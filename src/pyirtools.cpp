@@ -47,10 +47,10 @@ void computespec_core(int32_t nat, py::array_t<int32_t> at,
 PYBIND11_MODULE(_pyirtools, m) {
   m.doc() = "Python bindings for IRtools";
 
-  m.def("computespec_core", &computespec_core, "Compute spectrum core function",
-        py::arg("nat"), py::arg("at"), py::arg("xyz"), py::arg("hess"),
-        py::arg("dipd"), py::arg("ams"), py::arg("fscal"), py::arg("freq"),
-        py::arg("ints"));
+  m.def("computespec_core", &computespec_core, "Compute spectrum core function");//,
+//       py::arg("nat"), py::arg("at"), py::arg("xyz"), py::arg("hess"),
+//       py::arg("dipd"), py::arg("ams"), py::arg("fscal"), py::arg("freq"),
+//       py::arg("ints"));
 
 #ifdef VERSION_INFO
   m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
