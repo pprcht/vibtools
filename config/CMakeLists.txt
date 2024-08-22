@@ -30,12 +30,12 @@
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 
-# specify module installation directory
-install(
-  DIRECTORY
-  "${CMAKE_CURRENT_SOURCE_DIR}/modules/"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-)
+## specify module installation directory
+#install(
+#  DIRECTORY
+#  "${CMAKE_CURRENT_SOURCE_DIR}/modules/"
+#  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+#)
 
 # Options for enabling or disabling features
 option(WITH_OpenMP  "Enable OpenMP support"       TRUE)
