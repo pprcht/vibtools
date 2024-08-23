@@ -14,6 +14,11 @@ extern void c_computespec_core(
     double *c_freq, double *c_ints
 );
 
+
+// Declaration of the print routine
+void c_print_vib_spectrum_stdout(int nat3, double *freq, double *intens);
+
+
 #ifdef __cplusplus
 }
 #endif

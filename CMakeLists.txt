@@ -69,8 +69,9 @@ set(
   "$<$<VERSION_LESS:${CMAKE_VERSION},3.20>:BLAS::BLAS>"
 )
 
-# xhcff-lib sources
+# sources
 set(srcs)
+set(prog)
 add_subdirectory("src")
 
 
@@ -150,9 +151,36 @@ install(
 )
 
 
-# build a minimal app that can read xyz files and perform XHCFF singlepoints
+###############################################################################
+########################### Fortran app  ######################################
+###############################################################################
 if (build_exe)
-add_subdirectory("app")
+add_executable(
+  "${PROJECT_NAME}-exe"
+  "${prog}"
+)
+set_target_properties(
+  "${PROJECT_NAME}-exe"
+  PROPERTIES
+  OUTPUT_NAME "${PROJECT_NAME}"
+)
+target_compile_options(
+  "${PROJECT_NAME}-exe"
+  PRIVATE
+  "$<$<Fortran_COMPILER_ID:GNU>:-fall-intrinsics>"
+)
+target_link_libraries(
+  "${PROJECT_NAME}-exe"
+  PRIVATE
+  "${PROJECT_NAME}-lib"
+)
+
+install(
+  TARGETS
+  "${PROJECT_NAME}-exe"
+  DESTINATION
+  "${CMAKE_INSTALL_BINDIR}"
+)
 endif()
 
 ###############################################################################

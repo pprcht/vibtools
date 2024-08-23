@@ -163,7 +163,7 @@ contains  !> MODULE PROCEDURES START HERE
 
     !> Project translation and rotation, apply mass weighting
     call prj_mw_hess(nat,at,nat3,xyz,amass,hess)
-
+   
     !> Diagonalize
     call diagH(nat3,hess,freq)
     !> convert to cm^-1

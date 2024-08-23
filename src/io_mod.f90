@@ -24,7 +24,7 @@
 ! 
 
 module irtools_io_mod
-  use iso_fortran_env,only:wp => real64
+  use iso_fortran_env,only:wp => real64, stdout=>output_unit
   use irtools_atsymbols
   implicit none
   private
@@ -37,6 +37,7 @@ module irtools_io_mod
   public :: readhess
 
   public :: print_vib_spectrum
+  public :: print_vib_spectrum_stdout
   public :: read_vib_spectrum
 
 !========================================================================================!
@@ -272,6 +273,32 @@ contains  !> MODULE PROCEDURES BEGIN HERE
     write (ich,'("$end")')
     close (ich)
   end subroutine print_vib_spectrum
+
+
+   subroutine print_vib_spectrum_stdout(nat3,freq,intens)
+!*****************************************************
+!* print vibspectrum to console in nice formatting
+!*****************************************************
+    integer,intent(in) :: nat3
+    real(wp),intent(in) ::  freq(nat3),intens(nat3)
+    integer :: i,ich
+    real(wp),parameter :: thr = 0.01_wp
+    write (*,*)
+    write (*,'("Vibrational spectrum")')
+    write (*,'("--------------------")')
+    write (*,'("#  mode       wavenumber    IR intensity")')
+    write (*,'("#               [cm⁻¹]        [km/mol]  ")')
+    do i = 1,nat3
+      if (abs(freq(i)) .lt. thr) then
+        write (*,'(i6, f18.2,f16.5)') &
+          i,freq(i),0.0_wp
+      else
+        write (*,'(i6,f18.2,f16.5)') &
+          i,freq(i),intens(i)
+      end if
+    end do
+  end subroutine print_vib_spectrum_stdout
+
 
 !========================================================================================!
 

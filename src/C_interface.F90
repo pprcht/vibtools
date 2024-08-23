@@ -35,6 +35,7 @@ module irtools_c_interface
   private
 
   public :: c_computespec_core
+  public :: c_print_vib_spectrum_stdout
 
 !========================================================================================!
 !========================================================================================!
@@ -93,6 +94,24 @@ contains  !> MODULE PROCEDURES START HERE
     if(allocated(intstmp)) deallocate(intstmp)
     if(allocated(freqtmp)) deallocate(freqtmp)
   end subroutine c_computespec_core
+
+!========================================================================================!
+
+subroutine c_print_vib_spectrum_stdout(c_nat3, c_freq, c_intens) &
+    &            bind(C, name="c_print_vib_spectrum_stdout")
+    implicit none
+    integer(c_int),value,intent(in) :: c_nat3
+    real(c_double),target, intent(in) :: c_freq(*), c_intens(*)
+    real(wp),pointer :: freq(:)
+    real(wp),pointer :: intens(:)
+    integer :: nat3
+    nat3= c_nat3
+    call c_f_pointer(c_loc(c_freq),freq, [c_nat3])
+    call c_f_pointer(c_loc(c_intens),intens, [c_nat3])
+    !> Call the original Fortran subroutine
+    call print_vib_spectrum_stdout(nat3, freq, intens)
+end subroutine c_print_vib_spectrum_stdout
+
 
 !========================================================================================!
 !========================================================================================!

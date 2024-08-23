@@ -38,6 +38,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 #)
 
 # Options for enabling or disabling features
+option(build_exe    "Create the Fortran program"  TRUE)
 option(WITH_OpenMP  "Enable OpenMP support"       TRUE)
 option(WITH_TESTS   "Enable unit tests"           TRUE)
 option(PYTHON_BINDINGS "Compile python bindings"  FALSE)

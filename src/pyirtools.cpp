@@ -1,4 +1,5 @@
 #include "irtools.h"
+#include <iostream>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
@@ -9,10 +10,10 @@ namespace py = pybind11;
 
 // Wrapper for the c_computespec_core function
 void py_computespec_core(int32_t nat, py::array_t<int32_t> at,
-                      py::array_t<double> xyz, py::array_t<double> hess,
-                      py::array_t<double> dipd, py::array_t<double> ams,
-                      double fscal, py::array_t<double> freq,
-                      py::array_t<double> ints) {
+                         py::array_t<double> xyz, py::array_t<double> hess,
+                         py::array_t<double> dipd, py::array_t<double> ams,
+                         double fscal, py::array_t<double> freq,
+                         py::array_t<double> ints) {
 
   // Ensure the arrays are contiguous and have the correct dimensions
   auto at_buf = at.request();
@@ -44,13 +45,37 @@ void py_computespec_core(int32_t nat, py::array_t<int32_t> at,
                      freq_ptr, ints_ptr);
 }
 
+
+// Wrapper for the print_vib_spectrum_stdout function
+void py_print_vib_spectrum_stdout(py::array_t<double> freq, py::array_t<double> intens) {
+    // Check that the arrays are 1D and have the same size
+    auto freq_buf = freq.request();
+    auto intens_buf = intens.request();
+
+    if (freq_buf.ndim != 1 || intens_buf.ndim != 1 || freq_buf.shape[0] != intens_buf.shape[0]) {
+        throw std::runtime_error("Invalid array dimensions: 'freq' and 'intens' must be 1D arrays of the same size.");
+    }
+
+    int nat3 = freq_buf.shape[0];
+    double *freq_ptr = static_cast<double *>(freq_buf.ptr);
+    double *intens_ptr = static_cast<double *>(intens_buf.ptr);
+
+    // Call the Fortran routine via the C wrapper
+    c_print_vib_spectrum_stdout(nat3, freq_ptr, intens_ptr);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
 PYBIND11_MODULE(_irtools, m) {
   m.doc() = "Python bindings for IRtools";
 
-  m.def("py_computespec_core", &py_computespec_core, "Compute spectrum core function");//,
-//       py::arg("nat"), py::arg("at"), py::arg("xyz"), py::arg("hess"),
-//       py::arg("dipd"), py::arg("ams"), py::arg("fscal"), py::arg("freq"),
-//       py::arg("ints"));
+  m.def("py_computespec_core", &py_computespec_core,"Compute spectrum core function",
+        py::arg("nat"),py::arg("at"),py::arg("xyz"),py::arg("hessian"), 
+        py::arg("dipole_gradient"),py::arg("amass"),py::arg("fscal"),
+        py::arg("freq"),py::arg("intens"));
+  m.def("py_print_vib_spectrum_stdout", &py_print_vib_spectrum_stdout, 
+        "Print vibrational spectrum to stdout", py::arg("freq"),py::arg("intens"));
+
 
 #ifdef VERSION_INFO
   m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

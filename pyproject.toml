@@ -44,6 +44,8 @@ wheel.expand-macos-universal-tags = true
 
 [tool.scikit-build.cmake]
 args = [
+  "-Dbuild_exe=OFF",
+  "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
   "-DPYTHON_BINDINGS=ON"
 ]
 
