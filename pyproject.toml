@@ -39,6 +39,9 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/pprcht/IRtools"
 
+[project.scripts]
+pyirtools = "pyirtools.app:main"
+
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
 

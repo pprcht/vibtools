@@ -25,7 +25,7 @@ class IRtoolsCalculator:
         self.freq = None
         self.intens = None
         # Plotting parameters
-        self.Cnorm = 1.0
+        self.normconst = 1.0
         self.xmin = 100.0
         self.xmax = 4500.0
         self.dx = 1.0
@@ -105,7 +105,6 @@ class IRtoolsCalculator:
         py_lorentzian_broadening(nmodes=nmodes, freq=self.freq, intens=self.intens,
                                  xmin=self.xmin, xmax=self.xmax, dx=self.dx,
                                  fwhm=self.fwhm, npoints=npoints, plt=self.spec)
-    
 
     def plot(self, color='b', linewidth=2, figsize=(9, 6), save=None, 
              sticks=False, stickmarker='None'):
@@ -125,15 +124,15 @@ class IRtoolsCalculator:
     
         import matplotlib.pyplot as plt
     
-        # Normalize the intensities using Cnorm
-        intens_norm = self.intens * self.Cnorm
+        # Normalize the intensities using normconst
+        intens_norm = self.intens * self.normconst
     
         fig, ax = plt.subplots(figsize=figsize)
     
         # Check if self.spec is not None and plot it as a continuous line
         if self.spec is not None:
             x_values = np.linspace(self.xmin, self.xmax, len(self.spec))
-            y_values = self.spec*self.Cnorm 
+            y_values = self.spec*self.normconst 
             ax.plot(x_values, y_values, color, linewidth=linewidth/2) 
             ax.fill_between(x_values, 0, y_values, color=color, alpha=0.25)
 
@@ -149,7 +148,7 @@ class IRtoolsCalculator:
         ax.set_ylim(bottom=0)  # Set the lower y-limit to exactly zero
         ax.set_xlim(self.xmin,self.xmax)
         ax.set_xlabel('Frequency (cm$^{-1}$)')
-        if self.Cnorm == 1.0:
+        if self.normconst == 1.0:
           ax.set_ylabel('Intensity')
         else:
           ax.set_ylabel('Relative Intensity')
@@ -176,15 +175,15 @@ class IRtoolsCalculator:
         if self.spec is None:
             self.broaden()
         # Initialize nfac and tmpa
-        self.Cnorm = 1.0
+        self.normconst = 1.0
         tmpa = 0.0
         # Sum the elements in self.spec
         for value in self.spec:
             tmpa += value*self.dx
         # Compute the normalization factor
         tmpa = np.sqrt(tmpa)
-        self.Cnorm = 1.0 / tmpa
-        return self.Cnorm
+        self.normconst = 1.0 / tmpa
+        return self.normconst
 
 
 #########################################################################################

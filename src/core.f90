@@ -180,6 +180,13 @@ contains  !> MODULE PROCEDURES START HERE
     !> calculat intensities from dipole derivatives
     call IR_intensities(nat,at,amass,hess,dipd,intens)
 
+    !> set intensities of translation and rotation to zero
+    do i=1,nat3
+       if(abs(freq(i)) < 0.001_wp)then
+          intens(i) = 0.0_wp
+       endif  
+    enddo
+
   end subroutine computespec_core
 
 !========================================================================================!

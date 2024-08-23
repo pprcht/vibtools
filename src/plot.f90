@@ -123,17 +123,15 @@ contains  !> MODULE PROCEDURES START HERE
     real(wp) :: wcurrent,val
     integer :: i,j
 
+    plt(:) = 0.0_wp
+
     wcurrent = xmin
     do i = 1,npoints
       val = 0.0_wp
-      !do j = 1,nmodes
-      !  val = val+philorentz(wcurrent,freq(j),intens(j),fwhm)
-      !end do
       val = sumphi(wcurrent,nmodes,freq,intens,fwhm)
       plt(i) = val
       wcurrent = wcurrent+dx
     end do
-
   end subroutine lorentzian_broadening
 
   function sumphi(nu,nmodes,freq,intens,fwhm) result(sphi)
