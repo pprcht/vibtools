@@ -22,7 +22,7 @@ pip install . -v
 See the [`example/`](example/) subdirectory for an use-case example.
 The directory contrains the following required files:
 - [`struc.xyz`](example/struc.xyz), the input geometry at which dipole derivatives and the Hessian were calculated
-- [`dipgrad`](example/dipgrad), a plain-text file with the 6N<sub>at</sub> entries that are the Cartesian dipole derivatives in atomic units
+- [`dipgrad`](example/dipgrad), a plain-text file with the 9N<sub>at</sub> entries (3x3N<sub>at</sub>) that are the Cartesian dipole derivatives in atomic units
 - [`numhess`](example/numhess), the seminumerical Hessian (non-massweighted, in Hartree and Bohr) here in the Turbomole output format. A plain-text format with 3N<sub>at</sub> lines á 3N<sub>at</sub> entries is also valid input.
 
 Additionally the [`vibspectrum.ref`](example/vibspectrum.ref) file provides a higher-level reference spectrum.

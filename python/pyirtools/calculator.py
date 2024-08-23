@@ -4,6 +4,8 @@ from ase.data import atomic_masses
 from ase.units import Bohr,Hartree
 from ._irtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lorentzian_broadening
 
+from .readers import read_freqint, read_hessian, read_
+
 class IRtoolsCalculator:
     def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, dipole_gradient: np.ndarray=None, fscal: float = 1.0):
         """
@@ -24,6 +26,7 @@ class IRtoolsCalculator:
         self.fscal = fscal
         self.freq = None
         self.intens = None
+        self.filename = None
         # Plotting parameters
         self.normconst = 1.0
         self.xmin = 100.0
@@ -46,6 +49,13 @@ class IRtoolsCalculator:
         freq (numpy.ndarray): The computed frequencies.
         intens (numpy.ndarray): The computed intensities.
         """
+        if self.atoms is None:
+          raise ValueError("The ASE atoms object is required for frequency calculation")
+        if self.hessian is None:
+          raise ValueError("Non-massweighted Hessian matrix is required for frequency calculation")
+        if self.dipole_gradient is None:  
+          raise ValueError("Dipole gradient is required for intensity calculation") 
+
         nat = len(self.atoms)
         at = self.atoms.get_atomic_numbers().astype(np.int32)
   
@@ -152,7 +162,11 @@ class IRtoolsCalculator:
           ax.set_ylabel('Intensity')
         else:
           ax.set_ylabel('Relative Intensity')
-        ax.set_title('Vibrational Spectrum')
+
+        if self.filename is not None:
+          ax.set_title(f'Vibrational Spectrum: {self.filename}')
+        else:
+          ax.set_title('Vibrational Spectrum')
     
         # Apply a more subtle grid style
         ax.grid(True, linestyle='--', linewidth=0.5, color='gray', alpha=0.7)
