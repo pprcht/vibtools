@@ -4,7 +4,7 @@ from ase.data import atomic_masses
 from ase.units import Bohr,Hartree
 from ._irtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lorentzian_broadening
 
-from .readers import read_freqint, read_hessian, read_
+from .readers import read_freqint, read_hessian, read_dipgrad
 
 class IRtoolsCalculator:
     def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, dipole_gradient: np.ndarray=None, fscal: float = 1.0):

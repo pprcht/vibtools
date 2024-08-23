@@ -25,7 +25,7 @@ def read_freqint(filename):
 
 
 
-def read_heassian(filename):
+def read_hessian(filename):
     """
     Read a file and return a Hessian matrix
     """
