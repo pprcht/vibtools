@@ -1,4 +1,4 @@
-# python setup for pyxhcfflib
+# python setup for pyirtools
 # use 
 #   pip install .
 # to install. Requires scikit-build and pybind11
@@ -37,7 +37,7 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/pprcht/irtools"
+"Homepage" = "https://github.com/pprcht/IRtools"
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
