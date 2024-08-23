@@ -31,11 +31,13 @@ module irtools_c_interface
   use irtools_atmasses
   use irtools_maths
   use irtools_core
+  use irtools_plot
   implicit none
   private
 
   public :: c_computespec_core
   public :: c_print_vib_spectrum_stdout
+  public :: c_lorentzian_broadening
 
 !========================================================================================!
 !========================================================================================!
@@ -112,6 +114,32 @@ subroutine c_print_vib_spectrum_stdout(c_nat3, c_freq, c_intens) &
     call print_vib_spectrum_stdout(nat3, freq, intens)
 end subroutine c_print_vib_spectrum_stdout
 
+!========================================================================================!
+
+  subroutine c_lorentzian_broadening(c_nmodes,c_freq,c_intens,c_npoints, &
+  &                c_plt,c_xmin,c_xmax,c_dx,c_fwhm) bind(C, name='c_lorentzian_broadening')
+    implicit none
+    !> C variables
+    integer(c_int),value,intent(in) :: c_nmodes
+    real(c_double),target,intent(in) :: c_freq(*),c_intens(*)
+    integer(c_int),value,intent(in) :: c_npoints
+    real(c_double),target,intent(inout) :: c_plt(*)
+    real(c_double),value,intent(in) :: c_xmin,c_xmax,c_dx,c_fwhm
+    !> fortran variables
+    integer :: nmodes,npoints
+    real(wp) :: xmin,xmax,dx,fwhm
+    real(wp),pointer :: freq(:),intens(:),plt(:)
+    nmodes = c_nmodes
+    xmin = c_xmin
+    xmax = c_xmax
+    dx = c_dx
+    fwhm = c_fwhm
+    npoints = c_npoints
+    call c_f_pointer(c_loc(c_freq),freq, [c_nmodes])
+    call c_f_pointer(c_loc(c_intens),intens, [c_nmodes])
+    call c_f_pointer(c_loc(c_plt),plt, [c_npoints])
+    call lorentzian_broadening(nmodes,freq,intens,npoints,plt,xmin,xmax,dx,fwhm)
+  end subroutine c_lorentzian_broadening
 
 !========================================================================================!
 !========================================================================================!

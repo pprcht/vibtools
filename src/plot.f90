@@ -37,6 +37,8 @@ module irtools_plot
     module procedure :: plotvibspec_wrapper
   end interface plotvibspec
 
+  public :: lorentzian_broadening
+
 !========================================================================================!
 !========================================================================================!
 contains  !> MODULE PROCEDURES START HERE

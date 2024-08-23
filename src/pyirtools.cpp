@@ -45,37 +45,73 @@ void py_computespec_core(int32_t nat, py::array_t<int32_t> at,
                      freq_ptr, ints_ptr);
 }
 
-
 // Wrapper for the print_vib_spectrum_stdout function
-void py_print_vib_spectrum_stdout(py::array_t<double> freq, py::array_t<double> intens) {
-    // Check that the arrays are 1D and have the same size
-    auto freq_buf = freq.request();
-    auto intens_buf = intens.request();
+void py_print_vib_spectrum_stdout(py::array_t<double> freq,
+                                  py::array_t<double> intens) {
+  // Check that the arrays are 1D and have the same size
+  auto freq_buf = freq.request();
+  auto intens_buf = intens.request();
 
-    if (freq_buf.ndim != 1 || intens_buf.ndim != 1 || freq_buf.shape[0] != intens_buf.shape[0]) {
-        throw std::runtime_error("Invalid array dimensions: 'freq' and 'intens' must be 1D arrays of the same size.");
-    }
+  if (freq_buf.ndim != 1 || intens_buf.ndim != 1 ||
+      freq_buf.shape[0] != intens_buf.shape[0]) {
+    throw std::runtime_error("Invalid array dimensions: 'freq' and 'intens' "
+                             "must be 1D arrays of the same size.");
+  }
 
-    int nat3 = freq_buf.shape[0];
-    double *freq_ptr = static_cast<double *>(freq_buf.ptr);
-    double *intens_ptr = static_cast<double *>(intens_buf.ptr);
+  int nat3 = freq_buf.shape[0];
+  double *freq_ptr = static_cast<double *>(freq_buf.ptr);
+  double *intens_ptr = static_cast<double *>(intens_buf.ptr);
 
-    // Call the Fortran routine via the C wrapper
-    c_print_vib_spectrum_stdout(nat3, freq_ptr, intens_ptr);
+  // Call the Fortran routine via the C wrapper
+  c_print_vib_spectrum_stdout(nat3, freq_ptr, intens_ptr);
 }
 
+// Wrapper for the Lorentzian broadening routine
+void py_lorentzian_broadening(int nmodes, py::array_t<double> freq,
+                              py::array_t<double> intens, int npoints,
+                              py::array_t<double> plt, double xmin,
+                              double xmax, double dx, double fwhm) {
+  // Request buffer information for the numpy arrays
+  auto freq_buf = freq.request();
+  auto intens_buf = intens.request();
+  auto plt_buf = plt.request();
+
+  // Single if statement for dimension checks
+  if (freq_buf.ndim != 1 || intens_buf.ndim != 1 || plt_buf.ndim != 1 ||
+      freq_buf.shape[0] != nmodes || intens_buf.shape[0] != nmodes ||
+      plt_buf.shape[0] != npoints) {
+    throw std::runtime_error(
+        "Invalid array dimensions: "
+        "freq and intens must be 1D arrays with length equal to nmodes, "
+        "and plt must be a 1D array with length equal to npoints.");
+  }
+
+  // Convert numpy arrays to raw pointers
+  double *freq_ptr = static_cast<double *>(freq_buf.ptr);
+  double *intens_ptr = static_cast<double *>(intens_buf.ptr);
+  double *plt_ptr = static_cast<double *>(plt_buf.ptr);
+
+  // Call the Fortran subroutine via the C wrapper
+  c_lorentzian_broadening(nmodes, freq_ptr, intens_ptr, npoints, plt_ptr,
+                          xmin, xmax, dx, fwhm);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 PYBIND11_MODULE(_irtools, m) {
   m.doc() = "Python bindings for IRtools";
 
-  m.def("py_computespec_core", &py_computespec_core,"Compute spectrum core function",
-        py::arg("nat"),py::arg("at"),py::arg("xyz"),py::arg("hessian"), 
-        py::arg("dipole_gradient"),py::arg("amass"),py::arg("fscal"),
-        py::arg("freq"),py::arg("intens"));
-  m.def("py_print_vib_spectrum_stdout", &py_print_vib_spectrum_stdout, 
-        "Print vibrational spectrum to stdout", py::arg("freq"),py::arg("intens"));
-
+  m.def("py_computespec_core", &py_computespec_core,
+        "Compute spectrum core function", py::arg("nat"), py::arg("at"),
+        py::arg("xyz"), py::arg("hessian"), py::arg("dipole_gradient"),
+        py::arg("amass"), py::arg("fscal"), py::arg("freq"), py::arg("intens"));
+  m.def("py_print_vib_spectrum_stdout", &py_print_vib_spectrum_stdout,
+        "Print vibrational spectrum to stdout", py::arg("freq"),
+        py::arg("intens"));
+  m.def("py_lorentzian_broadening", &py_lorentzian_broadening,
+        "Apply Lorentzian broadening to a spectrum", py::arg("nmodes"),
+        py::arg("freq"), py::arg("intens"), py::arg("npoints"),
+        py::arg("plt"), py::arg("xmin"), py::arg("xmax"), py::arg("dx"),
+        py::arg("fwhm"));
 
 #ifdef VERSION_INFO
   m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
