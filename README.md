@@ -54,7 +54,7 @@ to each frequency/intensity pair (here $\nu_p = \tilde{\nu_p}$ and $I_p = A_{\ti
 ---
 
 <details>
-<summary><h4>Building and the standalone Fortran program</h4> (dropdown tab)</summary>
+<summary><h4>Building and using the standalone Fortran program</h4> (dropdown tab)</summary>
 
 The following setup is optional and ***not required*** if using the `pip` install.
 To build the `irtools` Fortran binary with CMake use the following chain of commands (in this example with `gfortran/gcc` compilers)
