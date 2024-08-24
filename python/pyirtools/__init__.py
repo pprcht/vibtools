@@ -3,6 +3,7 @@
 from ._irtools import __version__
 from .calculator import IRtoolsCalculator, matchscore
 from .readers import *
+from .printouts import *
 
 # Dynamically add all functions from the readers module to __all__
 import inspect
