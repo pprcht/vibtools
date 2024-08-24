@@ -1,7 +1,7 @@
 # pyirtools/app.py
 
 import argparse
-import pyirtools.calculator
+from pyirtools.calculator import IRtoolsCalculator, matchscore
 
 def main():
     parser = argparse.ArgumentParser(
@@ -30,15 +30,32 @@ def main():
     parser.add_argument('--plot', action='store_true',
                         help=("Apply Lorentzian line shapes to a the computed/read spectrum"
                               "and plot via matplotlib."))
-    parser.add_argument('-msc','--matchscore', nargs=2, metavar=('FILE1', 'FILE2'),
-                        help="Specify two vibrational spectrum files for matchscore calculation")
+    parser.add_argument('-msc','--matchscore', nargs='+', metavar=('FILE1', 'FILE2'),
+                        help="Specify vibrational spectrum files for matchscore calculation")
 
     # Parse arguments
     args = parser.parse_args()
 
+
+    ircalc1 = IRtoolsCalculator()
+
     #
     # TODO
     #
+    ircalc1.read(hessfile=args.hessian, dipfile=args.dipole_gradient)
+
+    # matchscore calculation
+    if args.matchscore:
+       if len(args.matchscore) == 1:
+         file1 = None
+         file2 = args.matchscore[0]
+       else: 
+         file1 = args.matchscore[0]
+         file2 = args.matchscore[1]
+       ircalc2 = IRtoolsCalculator()
+       print(f"File 1: {file1}")
+       print(f"File 2: {file2}")
+
 
 if __name__ == "__main__":
     main()

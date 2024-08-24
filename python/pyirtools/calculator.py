@@ -4,10 +4,12 @@ from ase.data import atomic_masses
 from ase.units import Bohr,Hartree
 from ._irtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lorentzian_broadening
 
-from .readers import read_freqint, read_hessian, read_dipgrad
+from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE
+from .filetypes import check_ASE_readable
 
 class IRtoolsCalculator:
-    def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, dipole_gradient: np.ndarray=None, fscal: float = 1.0):
+    def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, 
+                 dipole_gradient: np.ndarray=None, fscal: float = 1.0):
         """
         Initialize the IRtoolsCalculator with an ASE Atoms object, 
         Hessian matrix, and dipole gradient matrix.
@@ -19,10 +21,16 @@ class IRtoolsCalculator:
         fscal (float): The frequency scaling factor.
         """
         self.atoms = atoms
-        self.hessian = hessian.astype(np.float64)
-        self.dipole_gradient = dipole_gradient.astype(np.float64)
-        self.hessian = np.ascontiguousarray(self.hessian)
-        self.dipole_gradient = np.ascontiguousarray(self.dipole_gradient)
+        if hessian is not None:
+           self.hessian = hessian.astype(np.float64)
+           self.hessian = np.ascontiguousarray(self.hessian)
+        else:
+           self.hessian = None
+        if dipole_gradient is not None:
+           self.dipole_gradient = dipole_gradient.astype(np.float64)
+           self.dipole_gradient = np.ascontiguousarray(self.dipole_gradient)
+        else:
+           self.dipole_gradient = None
         self.fscal = fscal
         self.freq = None
         self.intens = None
@@ -39,6 +47,33 @@ class IRtoolsCalculator:
         self.amass = np.zeros(118, dtype=np.float64)
         for i in range(1, 119):
             self.amass[i-1] = atomic_masses[i]
+
+
+    def read(self, xyzfile=None, hessfile=None, dipfile=None, vibspecfile=None):
+        """
+        Read and overwrite data of a given IRtoolsCalculator
+        """
+        self.hessian = None
+        self.dipole_gradient = None
+        self.freq = None
+        self.intens = None
+        self.spec = None
+        self.filename = None  
+         
+        if xyzfile is not None:
+           if check_ASE_readable(xyzfile):
+              self.atoms = read_ASE(xyzfile)
+
+        if hessfile is not None:
+           self.hessian = read_hessian(hessfile)
+           #print(self.hessian)
+ 
+        if dipfile is not None:
+           self.dipole_gradient = read_dipgrad(dipfile)
+           #print(self.dipole_gradient) 
+
+        if vibspecfile is not None:
+           self.freq, self.intens = read_freqint(vibspecfile)  
 
 
     def compute(self):
@@ -69,9 +104,13 @@ class IRtoolsCalculator:
         # dipole gradient matrix needs transposing for the C++/Fortran passing
         dipole_gradient = np.ascontiguousarray(self.dipole_gradient.T)
 
+        # Copy the Hessian as to NOT OVERWRITE IT
+        hessian = np.copy(self.hessian)
+       
         # Call the Fortran routine via the C++ wrapper
-        py_computespec_core(nat, at, xyz, self.hessian, dipole_gradient, 
+        py_computespec_core(nat, at, xyz, hessian, dipole_gradient, 
                             self.amass, self.fscal, self.freq, self.intens)
+
         return self.freq, self.intens
 
 

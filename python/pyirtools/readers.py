@@ -4,7 +4,8 @@
 # from atomic simulation software. Will be expanded over time.
 #
 import numpy as np
-from .filetypes import FileFormatChecker
+from ase.io import read
+from .filetypes import FileFormatChecker,register_default_formats
 
 ##########################################################################################
 ####################### auto format reader interfaces ####################################
@@ -14,6 +15,7 @@ def read_freqint(filename):
     Read a file and return frequency and intensity pairs
     """
     checker = FileFormatChecker()
+    register_default_formats(checker)
     file_type = checker.check_format(filename)
 
     if file_type is None:
@@ -30,6 +32,7 @@ def read_hessian(filename):
     Read a file and return a Hessian matrix
     """
     checker = FileFormatChecker()
+    register_default_formats(checker) 
     file_type = checker.check_format(filename)
 
     if file_type is None:
@@ -48,6 +51,7 @@ def read_dipgrad(filename):
     Read a file and return a dipole derivative matrix (3 x 3*nat elements)
     """
     checker = FileFormatChecker()
+    register_default_formats(checker)
     file_type = checker.check_format(filename)
 
     if file_type is None:
@@ -56,6 +60,9 @@ def read_dipgrad(filename):
         dipgrad = read_plain_dipgrad(filename)
 
     return dipgrad
+
+
+
 
 
 ##########################################################################################
@@ -215,8 +222,13 @@ def read_plain_dipgrad(filename):
         raise ValueError(f"Total number of elements ({total_elements}) does not match the expected 3 x 3*nat structure.")
 
     # Reshape the dipgrad_data list into a 2D NumPy array with dimensions 3 x 3*nat
-    dipgrad_matrix = np.array(dipgrad_data).reshape(3, 3 * nat)
+    dipgrad_matrix = np.array(dipgrad_data).reshape(3 * nat , 3)
+    dipgrad_matrix = np.ascontiguousarray(dipgrad_matrix.T)
     
     return dipgrad_matrix
 
 
+
+def read_ASE(filename):
+    structure = read(filename)
+    return structure   

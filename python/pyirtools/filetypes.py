@@ -3,6 +3,8 @@
 # Define default file types and check formats for I/O stuff
 
 import os
+from ase.io import read
+from ase.io.formats import UnknownFileTypeError
 
 class FileFormatChecker:
     def __init__(self):
@@ -111,4 +113,13 @@ def register_default_formats(checker):
     checker.register_format("plain", [
         lambda filename: FileFormatChecker.check_is_plain_text_numbers(filename)
     ])
+ 
 
+
+
+def check_ASE_readable(filename):
+    try:
+        structure = read(filename)
+        return True
+    except (UnknownFileTypeError, IOError, ValueError) as e:
+        return False
