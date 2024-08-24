@@ -23,7 +23,7 @@ def read_freqint(filename):
     elif file_type == "TM_vibspectrum":
         wave_numbers, intensities = read_vibspectrum(filename)
 
-    return wave_numbers, intensities
+    return np.array(wave_numbers), np.array(intensities)
 
 
 

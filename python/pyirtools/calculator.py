@@ -37,10 +37,11 @@ class IRtoolsCalculator:
         self.filename = None
         # Plotting parameters
         self.normconst = 1.0
-        self.xmin = 100.0
-        self.xmax = 4500.0
-        self.dx = 1.0
-        self.fwhm = 30.0
+        self.xmin = 100.0   # in cm⁻¹
+        self.xmax = 5000.0  # in cm⁻¹
+        self.dx = 1.0       # in cm⁻¹
+        self.fwhm = 30.0    # for Lorentzian broadening
+        self.IR_CUTOFF = 10.0  # in km/mol (just for determining IR activity)
         self.spec = None
 
         # Initialize the amass array with atomic masses for elements 1-118
@@ -74,7 +75,8 @@ class IRtoolsCalculator:
 
         if vibspecfile is not None:
            self.freq, self.intens = read_freqint(vibspecfile)  
-
+           if self.freq is not None and self.intens is not None:
+              self.filename=vibspecfile 
 
     def compute(self):
         """
@@ -149,9 +151,11 @@ class IRtoolsCalculator:
             self.fwhm = fwhm
     
         nmodes = len(self.freq)
+        # Temporary frequency array in case we have a scaling factor
+        tmpfreq = np.copy(self.freq) * self.fscal
         npoints = int(np.round(np.abs(self.xmin - self.xmax) / self.dx))
         self.spec = np.ascontiguousarray(np.zeros(npoints, dtype=np.float64))
-        py_lorentzian_broadening(nmodes=nmodes, freq=self.freq, intens=self.intens,
+        py_lorentzian_broadening(nmodes=nmodes, freq=tmpfreq, intens=self.intens,
                                  xmin=self.xmin, xmax=self.xmax, dx=self.dx,
                                  fwhm=self.fwhm, npoints=npoints, plt=self.spec)
 
@@ -175,7 +179,10 @@ class IRtoolsCalculator:
     
         # Normalize the intensities using normconst
         intens_norm = self.intens * self.normconst
-    
+
+        # Temporary frequency array in case we have a scaling factor    
+        tmpfreq = np.copy(self.freq) * self.fscal
+
         fig, ax = plt.subplots(figsize=figsize)
     
         # Check if self.spec is not None and plot it as a continuous line
@@ -187,7 +194,7 @@ class IRtoolsCalculator:
 
         if sticks:
           # Create a stick plot using stem
-          markerline, stemlines, baseline = ax.stem(self.freq, intens_norm, 
+          markerline, stemlines, baseline = ax.stem(tmpfreq, intens_norm, 
           linefmt=color, basefmt=" ")
           # Adjust the markerline and stemlines
           plt.setp(markerline, 'marker', stickmarker)  # Remove markers at the top of the sticks
@@ -219,23 +226,54 @@ class IRtoolsCalculator:
         # Return pyplot objects in case we want to add more later
         return fig,ax     
 
-    def normalize(self):
+    def normalize(self, scheme='integral_root'):
         """
-        Normalize the spectrum to the root of its numerical integral 
+        Normalize the spectrum according to the selected scheme.
+    
+        Parameters:
+        - scheme: A string indicating the normalization scheme to use. 
+                  The default is 'integral_root', which normalizes the spectrum 
+                  to the root of its numerical integral. Other options can be 
+                  added as needed.
         """
         if self.freq is None or self.intens is None:
             self.compute()
         if self.spec is None:
             self.broaden()
+        
         # Initialize nfac and tmpa
         self.normconst = 1.0
-        tmpa = 0.0
-        # Sum the elements in self.spec
-        for value in self.spec:
-            tmpa += value*self.dx
-        # Compute the normalization factor
-        tmpa = np.sqrt(tmpa)
-        self.normconst = 1.0 / tmpa
+    
+        if scheme == 'integral_root':
+            # Sum the elements in self.spec and compute the normalization factor
+            tmpa = 0.0
+            for value in self.spec:
+                tmpa += (value**2) * self.dx
+            tmpa = np.sqrt(tmpa)
+            self.normconst = 1.0 / tmpa
+        
+        elif scheme == 'max_value':
+            # Normalize to the maximum value in the spectrum
+            max_val = max(self.spec)
+            self.normconst = 1.0 / max_val
+    
+        elif scheme == 'sum':
+            # Normalize by the sum of the intensities
+            sum_val = sum(self.spec) * self.dx
+            self.normconst = 1.0 / sum_val
+      
+        elif scheme == 'msc':
+            # A normalization scheme that was in the orignal specmatch code     
+            # I think it should be equivalent to the sum scheme if dx=1, no idae why it exists
+            summe = 0.0
+            sqrt_spec = np.sqrt(self.spec)
+            for value in sqrt_spec:
+                summe += (value**2)
+            self.normconst = 1.0 / np.sqrt(summe)
+
+        else:
+            raise ValueError(f"Unknown normalization scheme: {scheme}")
+    
         return self.normconst
 
 
@@ -260,28 +298,44 @@ def matchscore(calc1, calc2):
         calc1.compute()
     if calc1.spec is None:
         calc1.broaden()
+    # The two normalizations should be consistent with the newspecmatch code
     C1 = calc1.normalize()
+    u = (np.array(np.copy(calc1.spec), dtype=np.float64) * C1)
+
+
 
     # Ensure the second calculator's spectrum is computed and broadened
     if calc2.freq is None or calc2.intens is None:
         calc2.compute()
     if calc2.spec is None:
         calc2.broaden()
+    # Ensure the second calculator's spectrum is computed and broadened
     C2 = calc2.normalize()
+    v = (np.array(np.copy(calc2.spec), dtype=np.float64) * C2)
 
-    # Get the spectra arrays (both normalized)
-    u = calc1.spec * C1
-    v = calc2.spec * C2
+    # Get the sqrt of the spectra arrays (consistency with the newspecmatch code)
+    u = (np.sqrt(u))
+    v = (np.sqrt(v))
 
-    # Match Score (r_msc)
-    numerator_msc = np.sum(u * v) ** 2
-    denominator_msc = np.sum(u ** 2) * np.sum(v ** 2)
-    r_msc = numerator_msc / denominator_msc
+    # Initialize sums
+    sum1 = 0.0
+    sum2 = 0.0
+    sum3 = 0.0
+    sum4 = 0.0
+    
+    # Iterate through u and v simultaneously
+    for u_i, v_i in zip(u, v):
+        sum1 += u_i * v_i
+        sum2 += u_i**2
+        sum3 += v_i**2
+        sum4 += (v_i - u_i)**2 
 
-    # Euclidean Norm (r_euc)
-    numerator_euc = np.sum((u - v) ** 2)
-    denominator_euc = np.sum(v ** 2)
-    r_euc = (1.0 + numerator_euc / denominator_euc) ** -1
+    # Calculate the Matchscore (msc) using the Cauchy-Schwarz inequality
+    r_msc = (sum1**2) / (sum2 * sum3) if sum2 * sum3 != 0 else 0.0
+    
+    # Calculate the Euclidean norm (euc)
+    r_euc = np.sqrt(sum4 / sum2) if sum2 != 0 else 0.0
+    #r_euc = 1.0/(1.0 + (sum4/sum2)) if sum2 != 0 else 1.0
 
     # Pearson Correlation Coefficient (r_pcc)
     u_mean = np.mean(u)

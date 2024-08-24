@@ -266,7 +266,7 @@ contains  !> MODULE PROCEDURES BEGIN HERE
         write (ich,'(i6,9x,    f18.2,f16.5,7x," - ",5x," - ")') &
           i,freq(i),0.0_wp
       else
-        write (ich,'(i6,8x,"a",f18.2,f16.5,7x,"YES",5x,"YES")') &
+        write (ich,'(i6,8x,"a",f18.2,f16.5,7x,"YES",5x," - ")') &
           i,freq(i),intens(i)
       end if
     end do
