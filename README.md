@@ -17,7 +17,7 @@ pip install . -v
 
 ---
 
-### Running the program
+### Running `pyirtools` in a Python script
 
 See the [`example/`](example/) subdirectory for an use-case example.
 The directory contrains the following required files:
@@ -27,6 +27,74 @@ The directory contrains the following required files:
 - [`numhess`](example/numhess), the seminumerical Hessian (non-massweighted, in Hartree and Bohr) here in the Turbomole output format. A plain-text format with 3N<sub>at</sub> lines á 3N<sub>at</sub> entries is also valid input.
 
 Additionally the [`vibspectrum.ref`](example/vibspectrum.ref) file provides a higher-level reference spectrum.
+
+---
+
+### Running `pyirtools` as a command line tool
+
+The `pip install` will generate a cli application of the same name as the package.
+The help menu (`pyirtools -h`) will output:
+
+<details>
+<summary>cli output (dropdown tab, click here)</summary>
+
+```
+usage: pyirtools [-h] -i FILE [-hess FILE] [-dip FILE] [-s <float>] [-o FILE] [--plot] [-msc FILE2]
+
+A program to process vibrational spectra.
+
+options:
+  -h, --help            show this help message and exit
+  -i FILE, --file FILE  Specify input file. Depending on the application, this file can be variety
+                        of file types, e.g. a molecular structure or a vibspectrum file.
+
+General Options:
+  General options for input and output operations
+
+  -hess FILE, --hessian FILE
+                        Specify non-massweighted Hessian input file. The Hessian must be in atomic
+                        units (Hartree, Bohr)
+  -dip FILE, --dipole-gradient FILE
+                        Specify Cartesian dipole derivative input file. Dipole gradient must be in
+                        atomic units (charge, Bohr)
+  -s <float>, --scal <float>
+                        Specify a linear frequency scaling factor
+  -o FILE, --output FILE
+                        Specify the output file (written in TM vibspectrum format)
+
+Processing/Plotting Options:
+  These options will be applied to the spectrum and are useful for additional processing, like
+  plotting or comparing spectra via match scores
+
+  --plot                Apply Lorentzian line shapes to a the computed/read spectrumand plot via
+                        matplotlib.
+  -msc FILE2, --matchscore FILE2
+                        Specify vibrational spectrum file for matchscore calculation comparing the
+                        computed/read-in (-i) spectrum with FILE2
+```
+</details>
+
+
+Typical use cases are (taking files from the [`example/`](example/) subdirectory for demo purposes):
+1. The generation of `vibspectrum` files in the Turbomole format
+   ```
+   pyirtools -i struc.xyz -hess numhess -dip dipgrad -o vibspectrum.new
+   ```
+   which will generate a new file called `vibspectrum.new`
+
+2. Plotting a vibrational spectrum with `matplotlib`:
+   ```
+   pyirtools -i struc.xyz -hess numhess -dip dipgrad --plot
+   ```
+   or (with `vibspectrum.new` generated in the previous step)
+   ```
+   pyirtools -i vibspectrum.new --plot
+   ```
+
+3. Computing matchscores between two spectra:
+   ```
+   pyirtools -i vibspectrum.new -msc vibspectrum.ref
+   ```
 
 
 ---
@@ -57,6 +125,7 @@ to each frequency/intensity pair (here $\nu_p = \tilde{\nu_p}$ and $I_p = A_{\ti
 <summary><h4>Building and using the standalone Fortran program</h4> (dropdown tab)</summary>
 
 The following setup is optional and ***not required*** if using the `pip` install.
+In fact, the Python command line tool `pyirtools` has some more functionalities than the Fortran version, which is kept around only for legacy purposes.
 To build the `irtools` Fortran binary with CMake use the following chain of commands (in this example with `gfortran/gcc` compilers)
 ```bash
 FC=gfortran CC=gcc cmake -B _build -Dbuild_exe=true
