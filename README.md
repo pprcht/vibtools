@@ -186,3 +186,12 @@ vibtools vibspectrum --plot
 to write a plain-text `spectrum.txt`
 
 </details>
+
+
+## TODO
+
+[x] Interface Fortran/C to Python
+[x] Create `ipynb` example
+[ ] Implement thermodynamics evaluation
+[ ] Implement Hessian/dipole gradient readers for other programs
+[ ] Implement other types of doubly-harmonic spectra (Raman?) 
