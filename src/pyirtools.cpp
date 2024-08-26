@@ -1,4 +1,4 @@
-#include "irtools.h"
+#include "vibtools.h"
 #include <iostream>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -97,8 +97,8 @@ void py_lorentzian_broadening(int nmodes, py::array_t<double> freq,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-PYBIND11_MODULE(_irtools, m) {
-  m.doc() = "Python bindings for IRtools";
+PYBIND11_MODULE(_vibtools, m) {
+  m.doc() = "Python bindings for vibtools";
 
   m.def("py_computespec_core", &py_computespec_core,
         "Compute spectrum core function", py::arg("nat"), py::arg("at"),

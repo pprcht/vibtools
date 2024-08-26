@@ -1,5 +1,5 @@
-## IRtools
-![CI workflow](https://github.com/pprcht/IRtools/actions/workflows/build.yml/badge.svg)
+## vibtools
+![CI workflow](https://github.com/pprcht/vibtools/actions/workflows/build.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-coral.svg)](./LICENSE)
 <h3 align="center">Molecular thermodynamics evaluation and IR spectra generation<br>via the doubly-harmonic approximation</h3>
 
@@ -10,18 +10,18 @@ This repository contains tools to evaluate molecular Hessian matrices and genera
 
 While some portion the program backend is written in Fortran, the Python and C++ bindings enable to install the package via `pip`, which will automatically compile the code. Use the `-v` option to keep track of the compilation process:
 ```bash
-git clone git@github.com:pprcht/IRtools.git
-cd IRtools
+git clone git@github.com:pprcht/vibtools.git
+cd vibtools
 pip install . -v
 ```
 
 ---
 
-### Running `pyirtools` in a Python script
+### Running `pyvibtools` in a Python script
 
 See the [`example/`](example/) subdirectory for an use-case example.
 The directory contrains the following required files:
-- [`pyirtools.ipynb`](example/pyirtools.ipynb), a notebook demonstrating the use of `pyirtools`, also using the following files
+- [`pyvibtools.ipynb`](example/pyvibtools.ipynb), a notebook demonstrating the use of `pyvibtools`, also using the following files
 - [`struc.xyz`](example/struc.xyz), the input geometry at which dipole derivatives and the Hessian were calculated
 - [`dipgrad`](example/dipgrad), a plain-text file with the 9N<sub>at</sub> entries (3x3N<sub>at</sub>) that are the Cartesian dipole derivatives in atomic units
 - [`numhess`](example/numhess), the seminumerical Hessian (non-massweighted, in Hartree and Bohr) here in the Turbomole output format. A plain-text format with 3N<sub>at</sub> lines á 3N<sub>at</sub> entries is also valid input.
@@ -30,16 +30,16 @@ Additionally the [`vibspectrum.ref`](example/vibspectrum.ref) file provides a hi
 
 ---
 
-### Running `pyirtools` as a command line tool
+### Running `pyvibtools` as a command line tool
 
 The `pip install` will generate a cli application of the same name as the package.
-The help menu (`pyirtools -h`) will output:
+The help menu (`pyvibtools -h`) will output:
 
 <details>
 <summary>cli output (dropdown tab, click here)</summary>
 
 ```
-usage: pyirtools [-h] -i FILE [-hess FILE] [-dip FILE] [-s <float>] [-o FILE] [--plot] [-msc FILE2]
+usage: pyvibtools [-h] -i FILE [-hess FILE] [-dip FILE] [-s <float>] [-o FILE] [--plot] [-msc FILE2]
 
 A program to process vibrational spectra.
 
@@ -78,22 +78,22 @@ Processing/Plotting Options:
 Typical use cases are (taking files from the [`example/`](example/) subdirectory for demo purposes):
 1. The generation of `vibspectrum` files in the Turbomole format
    ```
-   pyirtools -i struc.xyz -hess numhess -dip dipgrad -o vibspectrum.new
+   pyvibtools -i struc.xyz -hess numhess -dip dipgrad -o vibspectrum.new
    ```
    which will generate a new file called `vibspectrum.new`
 
 2. Plotting a vibrational spectrum with `matplotlib`:
    ```
-   pyirtools -i struc.xyz -hess numhess -dip dipgrad --plot
+   pyvibtools -i struc.xyz -hess numhess -dip dipgrad --plot
    ```
    or (with `vibspectrum.new` generated in the previous step)
    ```
-   pyirtools -i vibspectrum.new --plot
+   pyvibtools -i vibspectrum.new --plot
    ```
 
 3. Computing matchscores between two spectra:
    ```
-   pyirtools -i vibspectrum.new -msc vibspectrum.ref
+   pyvibtools -i vibspectrum.new -msc vibspectrum.ref
    ```
 
 
@@ -125,8 +125,8 @@ to each frequency/intensity pair (here $\nu_p = \tilde{\nu_p}$ and $I_p = A_{\ti
 <summary><h4>Building and using the standalone Fortran program</h4> (dropdown tab)</summary>
 
 The following setup is optional and ***not required*** if using the `pip` install.
-In fact, the Python command line tool `pyirtools` has some more functionalities than the Fortran version, which is kept around only for legacy purposes.
-To build the `irtools` Fortran binary with CMake use the following chain of commands (in this example with `gfortran/gcc` compilers)
+In fact, the Python command line tool `pyvibtools` has some more functionalities than the Fortran version, which is kept around only for legacy purposes.
+To build the `vibtools` Fortran binary with CMake use the following chain of commands (in this example with `gfortran/gcc` compilers)
 ```bash
 FC=gfortran CC=gcc cmake -B _build -Dbuild_exe=true
 ```
@@ -139,13 +139,13 @@ The program can then be found within the `_build` directory and only needs to be
 With the compiled program run
 
 ```bash
-irtools struc.xyz -dip dipgrad -hess numhess -s 0.9606 
+vibtools struc.xyz -dip dipgrad -hess numhess -s 0.9606 
 ```
 
 which should produce the following output:
 
 ```
- irtools v0.1 Wed, 15 May 14:43:21, 05/15/2024
+ vibtools v0.1 Wed, 15 May 14:43:21, 05/15/2024
  commit (5896188) compiled by 'philipp@xps15'
  
  This program is distributed in the hope that it will be useful,
@@ -181,7 +181,7 @@ which should produce the following output:
 The produced `vibspectrum` file can be processed further by the command
 
 ```bash
-irtools vibspectrum --plot
+vibtools vibspectrum --plot
 ```
 to write a plain-text `spectrum.txt`
 

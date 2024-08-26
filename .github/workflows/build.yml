@@ -26,4 +26,4 @@ jobs:
 
     - name: Test installation
       run: |
-        python -c "import pyirtools; print(pyirtools.__version__)"
+        python -c "import pyvibtools; print(pyvibtools.__version__)"

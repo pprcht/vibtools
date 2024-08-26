@@ -1,4 +1,4 @@
-# python setup for pyirtools
+# python setup for pyvibtools
 # use 
 #   pip install .
 # to install. Requires scikit-build and pybind11
@@ -13,9 +13,9 @@ requires = [
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "pyirtools"
+name = "pyvibtools"
 version = "0.1"
-description = "A Python interface to the IRtools Fortran code"
+description = "A Python interface to the vibtools Fortran code"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
@@ -38,10 +38,10 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/pprcht/IRtools"
+"Homepage" = "https://github.com/pprcht/vibtools"
 
 [project.scripts]
-pyirtools = "pyirtools.app:main"
+pyvibtools = "pyvibtools.app:main"
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
@@ -56,7 +56,7 @@ args = [
 
 # linter stuff, in case it is installed
 [tool.ruff]
-src = ["python/pyirtools"]
+src = ["python/pyvibtools"]
 
 [tool.ruff.lint]
 extend-select = [

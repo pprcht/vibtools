@@ -1,7 +1,7 @@
-# pyirtools/__init__.py
+# pyvibtools/__init__.py
   
-from ._irtools import __version__
-from .calculator import IRtoolsCalculator, matchscore
+from ._vibtools import __version__
+from .calculator import vibtoolsCalculator, matchscore
 from .readers import *
 from .printouts import *
 
@@ -10,7 +10,7 @@ import inspect
 from . import readers
 from . import printouts
 
-__all__ = ["__version__", "IRtoolsCalculator", "matchscore"]
+__all__ = ["__version__", "vibtoolsCalculator", "matchscore"]
 
 # Add all functions from readers module to __all__
 __all__.extend(name for name, obj in inspect.getmembers(readers) if inspect.isfunction(obj))

@@ -1,4 +1,4 @@
-# This file is part of irtools.
+# This file is part of vibtools.
 # SPDX-Identifier: MIT
 #
 # MIT License
@@ -27,9 +27,9 @@
 cmake_minimum_required(VERSION 3.17)
 option(INSTALL_MODULES "Install Fortran module files to include directory." FALSE)
 
-# Setup the irtools Project
+# Setup the vibtools Project
 project(
-  irtools
+  vibtools
   LANGUAGES "Fortran" "C" "CXX"
   VERSION  0.1 
   DESCRIPTION "Tool for creating IR spectra in the double harmonic approximation"
@@ -191,19 +191,19 @@ find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(pybind11 REQUIRED)
 
 # Add the pybind11 module
-python_add_library(_irtools src/pyirtools.cpp WITH_SOABI)
+python_add_library(_vibtools src/pyvibtools.cpp WITH_SOABI)
 
 # Link against any existing libraries if necessary
-target_link_libraries(_irtools 
+target_link_libraries(_vibtools 
                       PRIVATE 
                       "${PROJECT_NAME}-lib"
                       pybind11::headers)
 
 # This is passing in the version as a define
-target_compile_definitions(_irtools PRIVATE VERSION_INFO=${PROJECT_VERSION})
+target_compile_definitions(_vibtools PRIVATE VERSION_INFO=${PROJECT_VERSION})
 
 # The install directory is the output (wheel) directory
-install(TARGETS _irtools DESTINATION pyirtools)
+install(TARGETS _vibtools DESTINATION pyvibtools)
 endif()
 
 ###############################################################################

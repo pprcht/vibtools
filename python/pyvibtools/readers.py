@@ -1,4 +1,4 @@
-# pyirtools/readers.py
+# pyvibtools/readers.py
 #
 # Attempts to implements a variety of reader functions for common file types
 # from atomic simulation software. Will be expanded over time.

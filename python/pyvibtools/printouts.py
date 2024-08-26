@@ -1,13 +1,13 @@
-# pyirtools/printouts
+# pyvibtools/printouts
 
-from .calculator import IRtoolsCalculator
+from .calculator import vibtoolsCalculator
 
-def print_vibspectrum(calc: IRtoolsCalculator, outfile=None):
+def print_vibspectrum(calc: vibtoolsCalculator, outfile=None):
     """"
-    Process the vibspectrum from a given IRtoolsCalculator
+    Process the vibspectrum from a given vibtoolsCalculator
 
     Parameters:
-    - calc: The IRtoolsCalculator
+    - calc: The vibtoolsCalculator
     - outfile: the vibspectrum file to which to output is written
                If it is None, the spectrum si instead printed to stdout
     """

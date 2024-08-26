@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -26,7 +26,7 @@
 !> Partially adapted from the CREST and xtb codes under GNU LGPL3
 !==========================================================================!
 
-module irtools_convert
+module vibtools_convert
   use iso_fortran_env,only:wp => real64
   implicit none
   public
@@ -71,4 +71,4 @@ module irtools_convert
 !  Blackwell Scientific Publications.
   real(wp),public,parameter :: au_to_kmmol = 1.7770969e+6_wp
 
-end module irtools_convert
+end module vibtools_convert

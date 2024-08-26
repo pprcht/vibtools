@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -23,9 +23,9 @@
 ! THE SOFTWARE.
 ! 
 
-module irtools_io_mod
+module vibtools_io_mod
   use iso_fortran_env,only:wp => real64, stdout=>output_unit
-  use irtools_atsymbols
+  use vibtools_atsymbols
   implicit none
   private
 
@@ -416,4 +416,4 @@ contains  !> MODULE PROCEDURES BEGIN HERE
 
 !========================================================================================!
 !========================================================================================!
-end module irtools_io_mod
+end module vibtools_io_mod

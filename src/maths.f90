@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -27,7 +27,7 @@
 !===========================================================================!
 
 !> Implementation of linear algebra projection routines
-module irtools_maths
+module vibtools_maths
   use iso_fortran_env,only:wp => real64,sp => real32
   implicit none
   private
@@ -862,4 +862,4 @@ contains
   end subroutine solver_sspevx
 
 !========================================================================================!
-end module irtools_maths
+end module vibtools_maths

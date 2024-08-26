@@ -1,8 +1,8 @@
-# pyirtools/app.py
+# pyvibtools/app.py
 
 import argparse
-from pyirtools.calculator import IRtoolsCalculator, matchscore
-from pyirtools.printouts import print_vibspectrum
+from pyvibtools.calculator import vibtoolsCalculator, matchscore
+from pyvibtools.printouts import print_vibspectrum
 
 def main():
     parser = argparse.ArgumentParser(
@@ -48,7 +48,7 @@ def main():
     args = parser.parse_args()
 
     # Initialize empty
-    ircalc1 = IRtoolsCalculator()
+    ircalc1 = vibtoolsCalculator()
 
     # Read files
     ircalc1.read(xyzfile=args.file, hessfile=args.hessian, dipfile=args.dipole_gradient)
@@ -76,7 +76,7 @@ def main():
     # matchscore calculation
     if args.matchscore:
        file2 = args.matchscore
-       ircalc2 = IRtoolsCalculator()
+       ircalc2 = vibtoolsCalculator()
        ircalc2.read(vibspecfile=file2)
        mscs = matchscore(ircalc1, ircalc2)
        print(f"Matchscores:")

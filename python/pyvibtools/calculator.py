@@ -2,16 +2,16 @@ import numpy as np
 from ase import Atoms
 from ase.data import atomic_masses
 from ase.units import Bohr,Hartree
-from ._irtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lorentzian_broadening
+from ._vibtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lorentzian_broadening
 
 from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE
 from .filetypes import check_ASE_readable
 
-class IRtoolsCalculator:
+class vibtoolsCalculator:
     def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, 
                  dipole_gradient: np.ndarray=None, fscal: float = 1.0):
         """
-        Initialize the IRtoolsCalculator with an ASE Atoms object, 
+        Initialize the vibtoolsCalculator with an ASE Atoms object, 
         Hessian matrix, and dipole gradient matrix.
 
         Parameters:
@@ -52,7 +52,7 @@ class IRtoolsCalculator:
 
     def read(self, xyzfile=None, hessfile=None, dipfile=None, vibspecfile=None):
         """
-        Read and overwrite data of a given IRtoolsCalculator
+        Read and overwrite data of a given vibtoolsCalculator
         """
         self.hessian = None
         self.dipole_gradient = None
@@ -284,11 +284,11 @@ def matchscore(calc1, calc2):
     """
     Calculate the match score (r_msc), Euclidean norm (r_euc), 
     and Pearson correlation coefficient (r_pcc) between 
-    two IRtoolsCalculator objects using their self.spec arrays.
+    two vibtoolsCalculator objects using their self.spec arrays.
     
     Parameters:
-    - calc1: The first IRtoolsCalculator object.
-    - calc2: The second IRtoolsCalculator object.
+    - calc1: The first vibtoolsCalculator object.
+    - calc2: The second vibtoolsCalculator object.
     
     Returns:
     - A dictionary containing r_msc, r_euc, r_pcc

@@ -1,4 +1,4 @@
-# This file is part of irtools.
+# This file is part of vibtools.
 # SPDX-Identifier: MIT
 #
 # MIT License

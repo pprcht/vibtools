@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -23,15 +23,15 @@
 ! THE SOFTWARE.
 ! 
 
-module irtools_c_interface
+module vibtools_c_interface
   use iso_c_binding
   use iso_fortran_env,only:wp => real64
-  use irtools_io_mod
-  use irtools_convert
-  use irtools_atmasses
-  use irtools_maths
-  use irtools_core
-  use irtools_plot
+  use vibtools_io_mod
+  use vibtools_convert
+  use vibtools_atmasses
+  use vibtools_maths
+  use vibtools_core
+  use vibtools_plot
   implicit none
   private
 
@@ -143,4 +143,4 @@ end subroutine c_print_vib_spectrum_stdout
 
 !========================================================================================!
 !========================================================================================!
-end module irtools_c_interface
+end module vibtools_c_interface

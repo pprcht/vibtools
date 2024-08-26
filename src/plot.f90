@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -23,12 +23,12 @@
 ! THE SOFTWARE.
 ! 
 
-module irtools_plot
+module vibtools_plot
   use iso_fortran_env,only:wp => real64
-  use irtools_io_mod
-  use irtools_convert
-  use irtools_atmasses
-  use irtools_maths
+  use vibtools_io_mod
+  use vibtools_convert
+  use vibtools_atmasses
+  use vibtools_maths
   implicit none
   private
 
@@ -214,4 +214,4 @@ contains  !> MODULE PROCEDURES START HERE
 
 !========================================================================================!
 !========================================================================================!
-end module irtools_plot
+end module vibtools_plot

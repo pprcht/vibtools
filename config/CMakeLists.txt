@@ -1,4 +1,4 @@
-# This file is part of irtools.
+# This file is part of vibtools.
 # SPDX-Identifier: MIT
 #
 # MIT License
@@ -81,7 +81,7 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}" PARENT_SCOPE)
 #########################################################################################
 #########################################################################################
 
-# Populate irtools_metadata.fh
+# Populate vibtools_metadata.fh
 set(version ${PROJECT_VERSION}${SOVERSION})
 execute_process(COMMAND git show -s --format=%h
   RESULT_VARIABLE git_return
@@ -103,7 +103,7 @@ set(bsystem "cmake ${CMAKE_VERSION}")
 
 configure_file(
   "${PROJECT_SOURCE_DIR}/assets/metadata.f90"
-  "${PROJECT_BINARY_DIR}/include/irtools_metadata.fh"
+  "${PROJECT_BINARY_DIR}/include/vibtools_metadata.fh"
   @ONLY
 )
 

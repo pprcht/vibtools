@@ -1,5 +1,5 @@
-#ifndef IRTOOLS_H
-#define IRTOOLS_H
+#ifndef vibtools_H
+#define vibtools_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,4 +26,4 @@ void c_lorentzian_broadening(int c_nmodes, const double *c_freq,
 }
 #endif
 
-#endif // IRTOOLS_H
+#endif // vibtools_H

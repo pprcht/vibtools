@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -23,12 +23,12 @@
 ! THE SOFTWARE.
 ! 
 
-module irtools_core
+module vibtools_core
   use iso_fortran_env,only:wp => real64
-  use irtools_io_mod
-  use irtools_convert
-  use irtools_atmasses
-  use irtools_maths
+  use vibtools_io_mod
+  use vibtools_convert
+  use vibtools_atmasses
+  use vibtools_maths
   implicit none
   private
 
@@ -265,7 +265,7 @@ contains  !> MODULE PROCEDURES START HERE
     !> Transforms matrix of the upper triangle vector
     call dsqtoh(nat3,hess,hess_ut)
 
-    !> Projection (in module irtools_maths)
+    !> Projection (in module vibtools_maths)
     call trproj(nat,nat3,xyz,hess_ut,.false.,0,pmode,1)
 
     !> Transforms vector of the upper triangle into matrix
@@ -527,4 +527,4 @@ contains  !> MODULE PROCEDURES START HERE
 
 !========================================================================================!
 !========================================================================================!
-end module irtools_core
+end module vibtools_core

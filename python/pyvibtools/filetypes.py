@@ -1,4 +1,4 @@
-# pyirtools/filetypes.py
+# pyvibtools/filetypes.py
 
 # Define default file types and check formats for I/O stuff
 
