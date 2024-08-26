@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -23,11 +23,11 @@
 ! THE SOFTWARE.
 ! 
 
-program irtools
+program vibtools
   use iso_fortran_env,only:wp => real64,stdout => output_unit
-  use irtools_io_mod
-  use irtools_core
-  use irtools_plot
+  use vibtools_io_mod
+  use vibtools_core
+  use vibtools_plot
   implicit none
   integer :: i,j,k,l
   integer :: nargs
@@ -142,19 +142,19 @@ program irtools
     write (*,*) 'No (valid) runtype selected! See --help!'
   end select
 
-end program irtools
+end program vibtools
 
 !========================================================================================!
 
 subroutine printout(printvers)
   implicit none
   logical :: printvers
-  include 'irtools_metadata.fh'
+  include 'vibtools_metadata.fh'
   if (printvers) then
-    write (*,'(1x,a,1x,"v",a)') 'irtools',trim(version)
+    write (*,'(1x,a,1x,"v",a)') 'vibtools',trim(version)
     stop
   else
-    write (*,'(1x,a,1x,"v",a,1x,a )') 'irtools',trim(version),trim(date)
+    write (*,'(1x,a,1x,"v",a,1x,a )') 'vibtools',trim(version),trim(date)
     write (*,'(1x,"commit (",a,") compiled by ",a)') commit,author
     call pr_disclaim()
     write (*,*)
@@ -172,7 +172,7 @@ end subroutine pr_disclaim
 
 subroutine help()
   write (*,*) "-------"
-  write (*,*) "IRtools"
+  write (*,*) "vibtools"
   write (*,*) "-------"
   call printout(.false.)
 
@@ -186,7 +186,7 @@ subroutine help()
   write (*,*) "tool will only calculate the ZPVE."
   write (*,*)
   write (*,*) "Usage:"
-  write (*,*) "  irtools <input> [arguments]"
+  write (*,*) "  vibtools <input> [arguments]"
   write (*,*) ""
   write (*,*) "Available options are:"
   write (*,*) ""

@@ -1,4 +1,4 @@
-# This file is part of irtools.
+# This file is part of vibtools.
 # SPDX-Identifier: MIT
 #
 # MIT License
@@ -30,16 +30,19 @@
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 
-# specify module installation directory
-install(
-  DIRECTORY
-  "${CMAKE_CURRENT_SOURCE_DIR}/modules/"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-)
+## specify module installation directory
+#install(
+#  DIRECTORY
+#  "${CMAKE_CURRENT_SOURCE_DIR}/modules/"
+#  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+#)
 
 # Options for enabling or disabling features
+option(build_exe    "Create the Fortran program"  TRUE)
 option(WITH_OpenMP  "Enable OpenMP support"       TRUE)
 option(WITH_TESTS   "Enable unit tests"           TRUE)
+option(PYTHON_BINDINGS "Compile python bindings"  FALSE)
+
 
 #########################################################################################
 #########################################################################################
@@ -78,7 +81,7 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}" PARENT_SCOPE)
 #########################################################################################
 #########################################################################################
 
-# Populate irtools_metadata.fh
+# Populate vibtools_metadata.fh
 set(version ${PROJECT_VERSION}${SOVERSION})
 execute_process(COMMAND git show -s --format=%h
   RESULT_VARIABLE git_return
@@ -100,7 +103,7 @@ set(bsystem "cmake ${CMAKE_VERSION}")
 
 configure_file(
   "${PROJECT_SOURCE_DIR}/assets/metadata.f90"
-  "${PROJECT_BINARY_DIR}/include/irtools_metadata.fh"
+  "${PROJECT_BINARY_DIR}/include/vibtools_metadata.fh"
   @ONLY
 )
 

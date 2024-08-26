@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -26,7 +26,7 @@
 ! Partially adapted from the CREST code under GNU LGPL3
 !================================================================================!
 
-module irtools_atmasses
+module vibtools_atmasses
   use iso_fortran_env,only:wp => real64
   implicit none
   private :: wp
@@ -133,4 +133,4 @@ contains ! MODULE PROCEDURES START HERE
 
 !========================================================================================!
 !========================================================================================!
-end module irtools_atmasses
+end module vibtools_atmasses

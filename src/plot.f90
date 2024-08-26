@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -23,12 +23,12 @@
 ! THE SOFTWARE.
 ! 
 
-module irtools_plot
+module vibtools_plot
   use iso_fortran_env,only:wp => real64
-  use irtools_io_mod
-  use irtools_convert
-  use irtools_atmasses
-  use irtools_maths
+  use vibtools_io_mod
+  use vibtools_convert
+  use vibtools_atmasses
+  use vibtools_maths
   implicit none
   private
 
@@ -36,6 +36,8 @@ module irtools_plot
   interface plotvibspec
     module procedure :: plotvibspec_wrapper
   end interface plotvibspec
+
+  public :: lorentzian_broadening
 
 !========================================================================================!
 !========================================================================================!
@@ -121,17 +123,15 @@ contains  !> MODULE PROCEDURES START HERE
     real(wp) :: wcurrent,val
     integer :: i,j
 
+    plt(:) = 0.0_wp
+
     wcurrent = xmin
     do i = 1,npoints
       val = 0.0_wp
-      !do j = 1,nmodes
-      !  val = val+philorentz(wcurrent,freq(j),intens(j),fwhm)
-      !end do
       val = sumphi(wcurrent,nmodes,freq,intens,fwhm)
       plt(i) = val
       wcurrent = wcurrent+dx
     end do
-
   end subroutine lorentzian_broadening
 
   function sumphi(nu,nmodes,freq,intens,fwhm) result(sphi)
@@ -214,4 +214,4 @@ contains  !> MODULE PROCEDURES START HERE
 
 !========================================================================================!
 !========================================================================================!
-end module irtools_plot
+end module vibtools_plot

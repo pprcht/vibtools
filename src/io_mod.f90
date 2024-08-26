@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -23,9 +23,9 @@
 ! THE SOFTWARE.
 ! 
 
-module irtools_io_mod
-  use iso_fortran_env,only:wp => real64
-  use irtools_atsymbols
+module vibtools_io_mod
+  use iso_fortran_env,only:wp => real64, stdout=>output_unit
+  use vibtools_atsymbols
   implicit none
   private
 
@@ -37,6 +37,7 @@ module irtools_io_mod
   public :: readhess
 
   public :: print_vib_spectrum
+  public :: print_vib_spectrum_stdout
   public :: read_vib_spectrum
 
 !========================================================================================!
@@ -265,13 +266,39 @@ contains  !> MODULE PROCEDURES BEGIN HERE
         write (ich,'(i6,9x,    f18.2,f16.5,7x," - ",5x," - ")') &
           i,freq(i),0.0_wp
       else
-        write (ich,'(i6,8x,"a",f18.2,f16.5,7x,"YES",5x,"YES")') &
+        write (ich,'(i6,8x,"a",f18.2,f16.5,7x,"YES",5x," - ")') &
           i,freq(i),intens(i)
       end if
     end do
     write (ich,'("$end")')
     close (ich)
   end subroutine print_vib_spectrum
+
+
+   subroutine print_vib_spectrum_stdout(nat3,freq,intens)
+!*****************************************************
+!* print vibspectrum to console in nice formatting
+!*****************************************************
+    integer,intent(in) :: nat3
+    real(wp),intent(in) ::  freq(nat3),intens(nat3)
+    integer :: i,ich
+    real(wp),parameter :: thr = 0.01_wp
+    write (*,*)
+    write (*,'("Vibrational spectrum")')
+    write (*,'("--------------------")')
+    write (*,'("#  mode       wavenumber    IR intensity")')
+    write (*,'("#               [cm⁻¹]        [km/mol]  ")')
+    do i = 1,nat3
+      if (abs(freq(i)) .lt. thr) then
+        write (*,'(i6, f18.2,f16.5)') &
+          i,freq(i),0.0_wp
+      else
+        write (*,'(i6,f18.2,f16.5)') &
+          i,freq(i),intens(i)
+      end if
+    end do
+  end subroutine print_vib_spectrum_stdout
+
 
 !========================================================================================!
 
@@ -389,4 +416,4 @@ contains  !> MODULE PROCEDURES BEGIN HERE
 
 !========================================================================================!
 !========================================================================================!
-end module irtools_io_mod
+end module vibtools_io_mod

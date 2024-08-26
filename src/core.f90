@@ -1,4 +1,4 @@
-! This file is part of irtools.
+! This file is part of vibtools.
 !
 ! MIT License
 !   
@@ -23,16 +23,16 @@
 ! THE SOFTWARE.
 ! 
 
-module irtools_core
+module vibtools_core
   use iso_fortran_env,only:wp => real64
-  use irtools_io_mod
-  use irtools_convert
-  use irtools_atmasses
-  use irtools_maths
+  use vibtools_io_mod
+  use vibtools_convert
+  use vibtools_atmasses
+  use vibtools_maths
   implicit none
   private
 
-  public :: computespec
+  public :: computespec, computespec_core
   interface computespec
     module procedure :: computespec_wrapper
     module procedure :: computespec_core
@@ -149,7 +149,7 @@ contains  !> MODULE PROCEDURES START HERE
     integer,intent(in) :: at(nat)
     real(wp),intent(in) :: xyz(3,nat)
     real(wp),intent(inout) :: hess(3*nat,3*nat)
-    real(wp),intent(in) :: dipd(3,nat)
+    real(wp),intent(in) :: dipd(3,nat*3)
     real(wp),intent(in) :: amass(118)
     real(wp),intent(in) :: fscal
     !> OUTPUT
@@ -163,7 +163,7 @@ contains  !> MODULE PROCEDURES START HERE
 
     !> Project translation and rotation, apply mass weighting
     call prj_mw_hess(nat,at,nat3,xyz,amass,hess)
-
+   
     !> Diagonalize
     call diagH(nat3,hess,freq)
     !> convert to cm^-1
@@ -179,6 +179,13 @@ contains  !> MODULE PROCEDURES START HERE
 
     !> calculat intensities from dipole derivatives
     call IR_intensities(nat,at,amass,hess,dipd,intens)
+
+    !> set intensities of translation and rotation to zero
+    do i=1,nat3
+       if(abs(freq(i)) < 0.001_wp)then
+          intens(i) = 0.0_wp
+       endif  
+    enddo
 
   end subroutine computespec_core
 
@@ -258,7 +265,7 @@ contains  !> MODULE PROCEDURES START HERE
     !> Transforms matrix of the upper triangle vector
     call dsqtoh(nat3,hess,hess_ut)
 
-    !> Projection (in module irtools_maths)
+    !> Projection (in module vibtools_maths)
     call trproj(nat,nat3,xyz,hess_ut,.false.,0,pmode,1)
 
     !> Transforms vector of the upper triangle into matrix
@@ -520,4 +527,4 @@ contains  !> MODULE PROCEDURES START HERE
 
 !========================================================================================!
 !========================================================================================!
-end module irtools_core
+end module vibtools_core
