@@ -53,17 +53,17 @@ def main():
     # Read files
     ircalc1.read(xyzfile=args.file, hessfile=args.hessian, dipfile=args.dipole_gradient)
 
-    # Calculate and print frequencies:
-    if ircalc1.atoms is not None and ircalc1.hessian is not None:
-       ircalc1.compute()
-       ircalc1.print()
-    else:
-       # Try to read in the file as vibspectrum
-       ircalc1.read(vibspecfile=args.file)
-
     # More arguments from argparser that may affect further processing    
     if args.scal:
        ircalc1.fscal = args.scal
+
+    # Calculate and print frequencies:
+    if ircalc1.atoms is not None and ircalc1.hessian is not None:
+       ircalc1.compute()
+       print_vibspectrum(ircalc1)
+    else:
+       # Try to read in the file as vibspectrum
+       ircalc1.read(vibspecfile=args.file)
 
     # Save the vibspectrum to file (TM format)
     if args.output:
@@ -79,7 +79,7 @@ def main():
        ircalc2 = vibtoolsCalculator()
        ircalc2.read(vibspecfile=file2)
        mscs = matchscore(ircalc1, ircalc2)
-       print(f"Matchscores:")
+       print(f"\nMatchscores:")
        print('%10s %10s %10s' % ('MSC','EUC','PCC')) 
        print('%10.4f %10.4f %10.4f' % (mscs[0], mscs[1], mscs[2])) 
 

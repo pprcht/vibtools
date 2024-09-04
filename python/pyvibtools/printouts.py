@@ -17,17 +17,18 @@ def print_vibspectrum(calc: vibtoolsCalculator, outfile=None):
 
     # Prepare the spectrum data as a list of formatted strings
     spectrum_lines = []
-    spectrum_lines.append("$vibrational spectrum")
+    if outfile:
+       spectrum_lines.append("$vibrational spectrum")
     if calc.fscal != 1.0:
        spectrum_lines.append(f"# WARNING: frequencies are scaled by factor {calc.fscal:.5f}")
     spectrum_lines.append("#  mode     symmetry     wave number   IR intensity    selection rules")
     spectrum_lines.append("#                         cm**(-1)        km/mol         IR     RAMAN")
     for i, (freq, intens) in enumerate(zip(calc.freq, calc.intens), start=1):
-        if abs(freq) < 1e-3:
+        if abs(freq) < 1e-3: # 6 (bzw. 5) modes should be zero 
             symmetry = ""
             ir = " - "  # Both columns show '-' if both values are small 
         else:
-            symmetry = "a"  # Example symmetry label, you can modify based on actual data
+            symmetry = "a"  # Example symmetry label, maybe implement at later date
             if abs(intens) > calc.IR_CUTOFF: # Determine IR activity with cutoff from calculator
                ir = "YES"
             else:
@@ -36,7 +37,8 @@ def print_vibspectrum(calc: vibtoolsCalculator, outfile=None):
 
         line = f"{i:6} {symmetry:>8} {freq:18.2f} {intens:15.5f} {ir:>9} {raman:>7}"
         spectrum_lines.append(line)
-    spectrum_lines.append("$end")
+    if outfile: 
+       spectrum_lines.append("$end")
 
     # Output to a file if outfile is provided, otherwise print to stdout
     if outfile:
