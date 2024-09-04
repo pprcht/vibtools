@@ -80,8 +80,8 @@ def main():
        ircalc2.read(vibspecfile=file2)
        mscs = matchscore(ircalc1, ircalc2)
        print(f"\nMatchscores:")
-       print('%10s %10s %10s' % ('MSC','EUC','PCC')) 
-       print('%10.4f %10.4f %10.4f' % (mscs[0], mscs[1], mscs[2])) 
+       print('%10s %10s %10s %10s' % ('MSC','EUC','PCC','SIS')) 
+       print('%10.4f %10.4f %10.4f %10.4f' % (mscs[0], mscs[1], mscs[2], mscs[3])) 
 
 
 if __name__ == "__main__":

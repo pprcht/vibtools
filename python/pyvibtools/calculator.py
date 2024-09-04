@@ -6,6 +6,7 @@ from ._vibtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lor
 
 from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE
 from .filetypes import check_ASE_readable
+from .utils import SIS
 
 class vibtoolsCalculator:
     def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, 
@@ -301,8 +302,7 @@ def matchscore(calc1, calc2):
     # The two normalizations should be consistent with the newspecmatch code
     C1 = calc1.normalize()
     u = (np.array(np.copy(calc1.spec), dtype=np.float64) * C1)
-
-
+    y_pred = u/np.sum(u) # different normalization for SIS
 
     # Ensure the second calculator's spectrum is computed and broadened
     if calc2.freq is None or calc2.intens is None:
@@ -312,6 +312,7 @@ def matchscore(calc1, calc2):
     # Ensure the second calculator's spectrum is computed and broadened
     C2 = calc2.normalize()
     v = (np.array(np.copy(calc2.spec), dtype=np.float64) * C2)
+    y_target = v/np.sum(v) # different normalization for SIS
 
     # Get the sqrt of the spectra arrays (consistency with the newspecmatch code)
     u = (np.sqrt(u))
@@ -334,8 +335,8 @@ def matchscore(calc1, calc2):
     r_msc = (sum1**2) / (sum2 * sum3) if sum2 * sum3 != 0 else 0.0
     
     # Calculate the Euclidean norm (euc)
-    r_euc = np.sqrt(sum4 / sum2) if sum2 != 0 else 0.0
-    #r_euc = 1.0/(1.0 + (sum4/sum2)) if sum2 != 0 else 1.0
+    #r_euc = np.sqrt(sum4 / sum2) if sum2 != 0 else 0.0
+    r_euc = 1.0/(1.0 + (sum4/sum2)) if sum2 != 0 else 1.0 #as in original newspecmatch code
 
     # Pearson Correlation Coefficient (r_pcc)
     u_mean = np.mean(u)
@@ -344,6 +345,11 @@ def matchscore(calc1, calc2):
     denominator_pcc = np.sqrt(np.sum((u - u_mean) ** 2) * np.sum((v - v_mean) ** 2))
     r_pcc = numerator_pcc / denominator_pcc
 
-    return r_msc, r_euc, r_pcc
+    # Spectral Information Similarity Metric from https://doi.org/10.1021/acs.jcim.1c00055
+    # Note, the spectra broadening is different compared to this publication!
+    r_sis = SIS(y_pred, y_target)
+
+
+    return r_msc, r_euc, r_pcc, r_sis
 
 
