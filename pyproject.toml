@@ -35,6 +35,7 @@ classifiers = [
 dependencies = [
   "ase>=3.22.0",
   "argparse",
+  "pandas",
 ]
 
 [project.urls]
