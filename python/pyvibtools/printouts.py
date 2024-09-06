@@ -1,5 +1,6 @@
 # pyvibtools/printouts
-
+import pandas as pd
+import numpy as np
 from .calculator import vibtoolsCalculator
 
 def print_vibspectrum(calc: vibtoolsCalculator, outfile=None):
@@ -49,3 +50,29 @@ def print_vibspectrum(calc: vibtoolsCalculator, outfile=None):
     else:
         for line in spectrum_lines:
             print(line)
+
+
+def export_vibspectrum_to_csv(calc: vibtoolsCalculator, outfile='vibspectrum.csv'):
+    """
+    Export the vibrational spectrum from a given vibtoolsCalculator to a CSV file.
+
+    Parameters:
+    - calc: The vibtoolsCalculator object containing frequencies and intensities.
+    - outfile: The CSV file to which the spectrum is written (default: 'vibspectrum.csv').
+    """
+    # Ensure the calculation has been performed
+    if calc.spec is None:
+       calc.broaden()
+    
+    freqs = np.linspace(calc.xmin, calc.xmax, len(calc.spec))
+
+    # Combine the frequencies and intensities into a DataFrame
+    data = {'Frequency': freqs, 'Intensity': calc.spec}
+    
+    # Convert the data to a DataFrame and export it to a CSV file
+    df = pd.DataFrame(data)
+    df['Frequency'] = df['Frequency'].round(3)
+    
+    # Save to CSV file
+    df.to_csv(outfile, index=False)
+

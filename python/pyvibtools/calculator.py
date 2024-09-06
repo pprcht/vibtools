@@ -154,7 +154,7 @@ class vibtoolsCalculator:
         nmodes = len(self.freq)
         # Temporary frequency array in case we have a scaling factor
         tmpfreq = np.copy(self.freq) * self.fscal
-        npoints = int(np.round(np.abs(self.xmin - self.xmax) / self.dx))
+        npoints = int(np.round(np.abs(self.xmin - self.xmax) / self.dx)) + 1
         self.spec = np.ascontiguousarray(np.zeros(npoints, dtype=np.float64))
         py_lorentzian_broadening(nmodes=nmodes, freq=tmpfreq, intens=self.intens,
                                  xmin=self.xmin, xmax=self.xmax, dx=self.dx,

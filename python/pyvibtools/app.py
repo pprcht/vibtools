@@ -2,7 +2,7 @@
 
 import argparse
 from pyvibtools.calculator import vibtoolsCalculator, matchscore
-from pyvibtools.printouts import print_vibspectrum
+from pyvibtools.printouts import print_vibspectrum, export_vibspectrum_to_csv
 
 def main():
     parser = argparse.ArgumentParser(
@@ -40,6 +40,8 @@ def main():
     function_group.add_argument('--plot', action='store_true',
                         help=("Apply Lorentzian line shapes to a the computed/read spectrum"
                               "and plot via matplotlib."))
+    function_group.add_argument('-ocsv', action='store_true',
+                        help=("Write the spectrum (additionally) to vibspectrum.csv"))
     function_group.add_argument('-msc','--matchscore', type=str, metavar='FILE2', default=None,
                         help="Specify vibrational spectrum file for matchscore calculation "
                              "comparing the computed/read-in (-i) spectrum with FILE2")
@@ -68,6 +70,10 @@ def main():
     # Save the vibspectrum to file (TM format)
     if args.output:
        print_vibspectrum(ircalc1, args.output)
+    # Additional output to vibpectrum.csv 
+    if args.ocsv:
+       export_vibspectrum_to_csv(ircalc1)    
+
 
     # If requested, plot
     if args.plot:
