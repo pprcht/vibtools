@@ -6,7 +6,8 @@ from ._vibtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lor
 
 from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE
 from .filetypes import check_ASE_readable
-from .utils import SIS
+from .filetypes import FileFormatChecker,register_default_formats
+from .utils import SIS,process_jdx_spectrum
 
 class vibtoolsCalculator:
     def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, 
@@ -36,6 +37,7 @@ class vibtoolsCalculator:
         self.freq = None
         self.intens = None
         self.filename = None
+        self.expspec = False
         # Plotting parameters
         self.normconst = 1.0
         self.xmin = 100.0   # in cm⁻¹
@@ -68,16 +70,23 @@ class vibtoolsCalculator:
 
         if hessfile is not None:
            self.hessian = read_hessian(hessfile)
-           #print(self.hessian)
  
         if dipfile is not None:
            self.dipole_gradient = read_dipgrad(dipfile)
-           #print(self.dipole_gradient) 
 
         if vibspecfile is not None:
-           self.freq, self.intens = read_freqint(vibspecfile)  
-           if self.freq is not None and self.intens is not None:
-              self.filename=vibspecfile 
+          checker = FileFormatChecker()
+          register_default_formats(checker)
+          file_type = checker.check_format(vibspecfile)
+      
+          if file_type is None:
+              print(f"File '{vibspecfile}' does not exist or has an unknown format.")
+          elif file_type == "TM_vibspectrum":
+              self.freq, self.intens = read_freqint(vibspecfile)  
+              if self.freq is not None and self.intens is not None:
+                 self.filename=vibspecfile 
+          elif file_type == "JDX_experimental":
+              print('JDX file')
 
     def compute(self):
         """

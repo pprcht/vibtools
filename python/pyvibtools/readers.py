@@ -62,9 +62,6 @@ def read_dipgrad(filename):
     return dipgrad
 
 
-
-
-
 ##########################################################################################
 ##########################################################################################
 ##########################################################################################
@@ -227,8 +224,57 @@ def read_plain_dipgrad(filename):
     
     return dipgrad_matrix
 
-
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
 def read_ASE(filename):
     structure = read(filename)
     return structure   
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+
+def read_jdx(filename):
+    with open(filename, 'r') as f:
+        metadata = {}
+        spectral_data = []
+        deltax = None
+        in_spectral_data = False
+
+        for line in f:
+            line = line.strip()
+
+            # Handle metadata (key-value pairs)
+            if '=' in line and not in_spectral_data:
+                key, value = line.split('=', 1)
+                metadata[key.strip('# ').upper()] = value.strip()
+
+                # Capture DELTAX value for interpolation
+                if 'DELTAX' in metadata:
+                    deltax = float(metadata['DELTAX'])
+
+                # Start collecting spectral data
+                if '##XYDATA' in line or '##PEAKTABLE' in line:
+                    in_spectral_data = True
+                    continue
+
+            # Handle spectral data (X followed by multiple Y values)
+            elif in_spectral_data:
+                if line.startswith('##END'):
+                    in_spectral_data = False
+                    continue
+
+                # Parse the X value and subsequent Y values
+                values = line.split()
+                x_value = float(values[0])  # First value is the X value
+                y_values = [float(y) for y in values[1:]]  # Remaining values are Y values
+
+                # Calculate corresponding X values based on DELTAX
+                for i, y in enumerate(y_values):
+                    x = x_value + i * deltax
+                    spectral_data.append((x, y))
+
+        return metadata, spectral_data
+
