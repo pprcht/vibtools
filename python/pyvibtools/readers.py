@@ -237,6 +237,20 @@ def read_ASE(filename):
 ##########################################################################################
 
 def read_jdx(filename):
+    """
+    Reads an experimental spectrum in the JDX format and returns meta and spectral data. 
+    Spectral data contains an array of frequency and intensity pairs.
+    Metadata MUST include two informations:
+    The frequency step, denoted by ##DELTAX= and the spectral data block
+    denoted by ##XYDATA. It is assumed datapoints are given in ascending frequency order.
+
+    Parameters:
+    - filename: Path to the JDX file.
+
+    Returns:
+    - metadata dictionary
+    - spectral_data (Npoints x 2 matrix)
+    """
     with open(filename, 'r') as f:
         metadata = {}
         spectral_data = []
@@ -275,6 +289,9 @@ def read_jdx(filename):
                 for i, y in enumerate(y_values):
                     x = x_value + i * deltax
                     spectral_data.append((x, y))
+
+        # Round X values to nearest integer but keep them as floats in the data
+        #spectral_data = [(round(x), y) for x, y in spectral_data]
 
         return metadata, spectral_data
 

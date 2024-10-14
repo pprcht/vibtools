@@ -32,7 +32,7 @@ def SIS(y_pred, y_target):
 
 
 # Process the jdx spectrum to fit xmin, xmax and dx
-def process_jdx_spectrum(spectral_data, dx, xmin=None, xmax=None):
+def process_exp_spectrum(spectral_data, dx, xmin=None, xmax=None):
     # Step 1: Round X values to nearest integer but keep them as floats in the data
     rounded_spectrum = [(round(x), y) for x, y in spectral_data]
 
@@ -65,13 +65,10 @@ def process_jdx_spectrum(spectral_data, dx, xmin=None, xmax=None):
 
         # Generate X values between xmin and the current minimum x
         extended_x_values = np.linspace(xmin, x_min, int((x_min - xmin) / dx) + 1)
-
-        # Apply an exponential decay function between xmin and x_min
-        decay_constant = 2  # This controls how fast the exponential decays (can be adjusted)
-        extended_y_values = y_min * np.exp(-decay_constant * (x_min - extended_x_values) / (x_min - xmin))
-
-        # Set the y value at xmin to 0
-        extended_y_values[-1] = 0
+  
+        # Apply an exponential decay function for new points
+        decay_constant = 1.0 / 100.0
+        extended_y_values = y_min * np.exp(-decay_constant * (x_min - extended_x_values)**2)
 
         # Combine the extended values with the interpolated spectrum
         extended_spectrum = list(zip(extended_x_values, extended_y_values))
@@ -86,9 +83,12 @@ def process_jdx_spectrum(spectral_data, dx, xmin=None, xmax=None):
 
         # Generate X values between current max x and xmax
         extended_x_values = np.linspace(x_max, xmax, int((xmax - x_max) / dx) + 1)
+        print(extended_x_values)
+        xtmp = extended_x_values[0]
 
         # Linearly interpolate between the current max x and xmax
-        extended_y_values = np.linspace(y_max, 0, int((xmax - x_max) / dx) + 1)
+        decay_constant = 1.0 / 100.0
+        extended_y_values = y_max * np.exp(-decay_constant * (extended_x_values - xtmp)**2)
 
         # Combine the extended values with the interpolated spectrum
         extended_spectrum = list(zip(extended_x_values, extended_y_values))

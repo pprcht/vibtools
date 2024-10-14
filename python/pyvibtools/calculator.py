@@ -4,10 +4,10 @@ from ase.data import atomic_masses
 from ase.units import Bohr,Hartree
 from ._vibtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lorentzian_broadening
 
-from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE
+from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE, read_jdx
 from .filetypes import check_ASE_readable
 from .filetypes import FileFormatChecker,register_default_formats
-from .utils import SIS,process_jdx_spectrum
+from .utils import SIS,process_exp_spectrum
 
 class vibtoolsCalculator:
     def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, 
@@ -87,15 +87,26 @@ class vibtoolsCalculator:
                  self.filename=vibspecfile 
           elif file_type == "JDX_experimental":
               print('JDX file')
+              _, spectral_data = read_jdx(vibspecfile)
+              self.freq, self.intens = zip(*spectral_data)
+              if self.freq is not None and self.intens is not None:
+                 self.filename=vibspecfile
+              self.expspec = True 
+              self.freq = np.array(self.freq)
+              self.intens = np.array(self.intens)
 
     def compute(self):
         """
         Compute the vibrational spectrum using the Fortran routine.
+        Does nothing for read-in experimental spectra
 
         Returns:
         freq (numpy.ndarray): The computed frequencies.
         intens (numpy.ndarray): The computed intensities.
         """
+        if self.expspec:
+          # Do nothing for experimental spectra
+          return self.freq, self.intens
         if self.atoms is None:
           raise ValueError("The ASE atoms object is required for frequency calculation")
         if self.hessian is None:
@@ -165,9 +176,17 @@ class vibtoolsCalculator:
         tmpfreq = np.copy(self.freq) * self.fscal
         npoints = int(np.round(np.abs(self.xmin - self.xmax) / self.dx)) + 1
         self.spec = np.ascontiguousarray(np.zeros(npoints, dtype=np.float64))
-        py_lorentzian_broadening(nmodes=nmodes, freq=tmpfreq, intens=self.intens,
-                                 xmin=self.xmin, xmax=self.xmax, dx=self.dx,
-                                 fwhm=self.fwhm, npoints=npoints, plt=self.spec)
+        if self.expspec:
+           spectral_data = list(zip(self.freq,self.intens))
+           spectral_data = process_exp_spectrum(spectral_data, 
+                                                self.dx, xmin=self.xmin,
+                                                xmax=self.xmax)
+           _,self.spec = zip(*spectral_data)
+           self.spec = np.array(self.spec)
+        else:
+           py_lorentzian_broadening(nmodes=nmodes, freq=tmpfreq, intens=self.intens,
+                                    xmin=self.xmin, xmax=self.xmax, dx=self.dx,
+                                    fwhm=self.fwhm, npoints=npoints, plt=self.spec)
 
     def plot(self, color='b', linewidth=2, figsize=(9, 6), save=None, 
              sticks=False, stickmarker='None'):
