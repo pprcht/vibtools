@@ -86,7 +86,6 @@ class vibtoolsCalculator:
               if self.freq is not None and self.intens is not None:
                  self.filename=vibspecfile 
           elif file_type == "JDX_experimental":
-              print('JDX file')
               _, spectral_data = read_jdx(vibspecfile)
               self.freq, self.intens = zip(*spectral_data)
               if self.freq is not None and self.intens is not None:

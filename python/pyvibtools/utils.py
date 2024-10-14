@@ -83,7 +83,6 @@ def process_exp_spectrum(spectral_data, dx, xmin=None, xmax=None):
 
         # Generate X values between current max x and xmax
         extended_x_values = np.linspace(x_max, xmax, int((xmax - x_max) / dx) + 1)
-        print(extended_x_values)
         xtmp = extended_x_values[0]
 
         # Linearly interpolate between the current max x and xmax
