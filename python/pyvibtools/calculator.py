@@ -292,7 +292,7 @@ class vibtoolsCalculator:
       
         elif scheme == 'msc':
             # A normalization scheme that was in the orignal specmatch code     
-            # I think it should be equivalent to the sum scheme if dx=1, no idae why it exists
+            # I think it should be equivalent to the sum scheme if dx=1, no idea why it exists
             summe = 0.0
             sqrt_spec = np.sqrt(self.spec)
             for value in sqrt_spec:

@@ -40,6 +40,8 @@ def main():
     function_group.add_argument('--plot', action='store_true',
                         help=("Apply Lorentzian line shapes to a the computed/read spectrum"
                               "and plot via matplotlib."))
+    function_group.add_argument('--multiplot', '-mp', metavar='F', type=str, nargs='+',
+                        help='One or more files to plot together with -i', required=False)
     function_group.add_argument('-ocsv', action='store_true',
                         help=("Write the spectrum (additionally) to vibspectrum.csv"))
     function_group.add_argument('-msc','--matchscore', type=str, metavar='FILE2', default=None,
@@ -76,8 +78,14 @@ def main():
 
 
     # If requested, plot
-    if args.plot:
+    if args.plot and args.multiplot is None:
        ircalc1.plot()
+    elif args.multiplot and args.plot is False:
+       spectra_list = []
+       spectra_list.append(ircalc1)
+       print("Multiplot")
+    else:
+       raise ValueError("Please use --plot or --multiplot, but not both")
 
     # matchscore calculation
     if args.matchscore:
