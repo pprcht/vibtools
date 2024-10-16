@@ -3,6 +3,7 @@
 import argparse
 from pyvibtools.calculator import vibtoolsCalculator, matchscore
 from pyvibtools.printouts import print_vibspectrum, export_vibspectrum_to_csv
+from pyvibtools.multiplot import *
 
 def main():
     parser = argparse.ArgumentParser(
@@ -80,11 +81,15 @@ def main():
     # If requested, plot
     if args.plot and args.multiplot is None:
        ircalc1.plot()
-    elif args.multiplot and args.plot is False:
+    elif args.multiplot and not args.plot:
        spectra_list = []
        spectra_list.append(ircalc1)
-       print("Multiplot")
-    else:
+       spectra_labels = []
+       spectra_labels.append(ircalc1.filename)
+       for file_name in args.multiplot:
+          process_file_multiplot(file_name, spectra_list, spectra_labels)
+       multiplot(spectra_list, labels=spectra_labels)
+    elif args.plot and args.multiplot:
        raise ValueError("Please use --plot or --multiplot, but not both")
 
     # matchscore calculation

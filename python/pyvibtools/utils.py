@@ -40,6 +40,7 @@ def process_exp_spectrum(spectral_data, dx, xmin=None, xmax=None):
     x_values = [x for x, y in rounded_spectrum]
     y_values = [y for x, y in rounded_spectrum]
 
+
     # Step 3: Check if interpolation is needed
     current_deltax = np.mean(np.diff(x_values))
     if dx >= current_deltax:
@@ -60,7 +61,7 @@ def process_exp_spectrum(spectral_data, dx, xmin=None, xmax=None):
     x_values_interpolated = [x for x, y in interpolated_spectrum]
     if xmin is not None and xmin < x_values_interpolated[0]:
         # Add a point at (xmin, 0) and interpolate between xmin and current min x using an exponential function
-        x_min = x_values_interpolated[0]
+        x_min = x_values_interpolated[0]-1
         y_min = interpolated_spectrum[0][1]
 
         # Generate X values between xmin and the current minimum x
@@ -78,7 +79,7 @@ def process_exp_spectrum(spectral_data, dx, xmin=None, xmax=None):
     x_values_interpolated = [x for x, y in interpolated_spectrum]
     if xmax is not None and xmax > x_values_interpolated[-1]:
         # Add a point at (xmax, 0) and interpolate between current max x and xmax
-        x_max = x_values_interpolated[-1]
+        x_max = x_values_interpolated[-1]+1
         y_max = interpolated_spectrum[-1][1]
 
         # Generate X values between current max x and xmax
