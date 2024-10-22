@@ -1,7 +1,7 @@
 # pyvibtools/app.py
 
 import argparse
-from pyvibtools.calculator import vibtoolsCalculator, matchscore
+from pyvibtools.calculator import vibtoolsCalculator, matchscore, calc_autorange
 from pyvibtools.printouts import print_vibspectrum, export_vibspectrum_to_csv
 from pyvibtools.multiplot import *
 
@@ -32,6 +32,14 @@ def main():
                         help='Specify a linear frequency scaling factor')
     general_group.add_argument('-o', '--output', type=str, metavar='FILE', default=None,
                         help=("Specify the output file (written in TM vibspectrum format)"))
+    general_group.add_argument('-xmin', type=float, default=None,
+                        help=("Specify minimum frequency value considered for spectra processing"))
+    general_group.add_argument('-xmax', type=float, default=None,
+                        help=("Specify maximum frequency value considered for spectra processing"))
+    general_group.add_argument('--autox', action='store_true',
+                        help='Allow automatic determination of frequency range if at least one spectrum is experimental')
+    general_group.add_argument('-dx', type=float, default=None,
+                        help=("Specify frequency interval considered for spectra processing"))
 
 
     function_group = parser.add_argument_group('Processing/Plotting Options')
@@ -77,6 +85,13 @@ def main():
     if args.ocsv:
        export_vibspectrum_to_csv(ircalc1)    
 
+    # Bounds, for further applications in the following
+    if args.xmin:
+       ircalc1.xmin = args.xmin
+    if args.xmax:
+       ircalc1.xmax = args.xmax
+    if args.dx:
+       ircalc1.dx = args.dx
 
     # If requested, plot
     if args.plot and args.multiplot is None:
@@ -97,6 +112,15 @@ def main():
        file2 = args.matchscore
        ircalc2 = vibtoolsCalculator()
        ircalc2.read(vibspecfile=file2)
+       # Check and print bounds
+       calc_autorange(ircalc1,ircalc2,args.autox)
+       #ircalc2.xmin = ircalc1.xmin
+       #ircalc2.xmax = ircalc1.xmax
+       #ircalc2.dx = ircalc1.dx
+       print('%12s : %8.2f' % ('xmin / cm⁻¹', ircalc1.xmin))
+       print('%12s : %8.2f' % ('xmax / cm⁻¹', ircalc1.xmax))
+       print('%12s : %8.2f' % ('dx / cm⁻¹', ircalc1.dx))
+       # Using the two spectra, calculate:
        mscs = matchscore(ircalc1, ircalc2)
        print(f"\nMatchscores:")
        print('%10s %10s %10s %10s' % ('MSC','EUC','PCC','SIS')) 
@@ -105,3 +129,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

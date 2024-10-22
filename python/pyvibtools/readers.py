@@ -255,6 +255,7 @@ def read_jdx(filename):
         metadata = {}
         spectral_data = []
         deltax = None
+        minx=None
         in_spectral_data = False
 
         for line in f:
@@ -268,6 +269,10 @@ def read_jdx(filename):
                 # Capture DELTAX value for interpolation
                 if 'DELTAX' in metadata:
                     deltax = float(metadata['DELTAX'])
+
+                # Capture MINX as lower x bound
+                if 'MINX' in metadata:
+                    minx = float(round(float(metadata['MINX'])))   
 
                 # Start collecting spectral data
                 if '##XYDATA' in line or '##PEAKTABLE' in line:
@@ -293,5 +298,5 @@ def read_jdx(filename):
         # Round X values to nearest integer but keep them as floats in the data
         #spectral_data = [(round(x), y) for x, y in spectral_data]
 
-        return metadata, spectral_data
+        return metadata, spectral_data, minx
 

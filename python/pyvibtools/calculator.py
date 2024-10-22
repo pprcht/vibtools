@@ -38,6 +38,7 @@ class vibtoolsCalculator:
         self.intens = None
         self.filename = None
         self.expspec = False
+        self.expmin = None
         # Plotting parameters
         self.normconst = 1.0
         self.xmin = 100.0   # in cm⁻¹
@@ -86,7 +87,7 @@ class vibtoolsCalculator:
               if self.freq is not None and self.intens is not None:
                  self.filename=vibspecfile 
           elif file_type == "JDX_experimental":
-              _, spectral_data = read_jdx(vibspecfile)
+              _, spectral_data, self.expmin = read_jdx(vibspecfile)
               self.freq, self.intens = zip(*spectral_data)
               if self.freq is not None and self.intens is not None:
                  self.filename=vibspecfile
@@ -304,6 +305,16 @@ class vibtoolsCalculator:
     
         return self.normconst
 
+#########################################################################################
+
+def calc_autorange(calc1, calc2, autox=None):
+    if autox:
+       expmin = max(filter(None, [calc1.expmin, calc2.expmin]), default=calc1.xmin)
+       calc1.xmin = expmin
+    calc2.xmin = calc1.xmin
+    calc2.xmax = calc1.xmax
+    calc2.dx = calc1.dx
+
 
 #########################################################################################
 
@@ -321,6 +332,7 @@ def matchscore(calc1, calc2):
     Returns:
     - A dictionary containing r_msc, r_euc, r_pcc
     """
+
     # Ensure the first calculator's spectrum is computed and broadened
     if calc1.freq is None or calc1.intens is None:
         calc1.compute()
