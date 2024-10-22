@@ -104,6 +104,13 @@ def register_default_formats(checker):
         )
     ])
 
+    # Register experimental JDX files (by extension only)
+    checker.register_format("JDX_experimental", [
+        lambda filename: (
+            FileFormatChecker.check_extension(filename, "jdx")
+        )
+    ])
+
     # Register a check for Turbomole hessian files
     checker.register_format("TM_hessian", [
         lambda filename: FileFormatChecker.check_contains_keyword(filename, "$hessian")

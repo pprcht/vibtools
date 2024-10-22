@@ -62,9 +62,6 @@ def read_dipgrad(filename):
     return dipgrad
 
 
-
-
-
 ##########################################################################################
 ##########################################################################################
 ##########################################################################################
@@ -227,8 +224,79 @@ def read_plain_dipgrad(filename):
     
     return dipgrad_matrix
 
-
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
 def read_ASE(filename):
     structure = read(filename)
     return structure   
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+
+def read_jdx(filename):
+    """
+    Reads an experimental spectrum in the JDX format and returns meta and spectral data. 
+    Spectral data contains an array of frequency and intensity pairs.
+    Metadata MUST include two informations:
+    The frequency step, denoted by ##DELTAX= and the spectral data block
+    denoted by ##XYDATA. It is assumed datapoints are given in ascending frequency order.
+
+    Parameters:
+    - filename: Path to the JDX file.
+
+    Returns:
+    - metadata dictionary
+    - spectral_data (Npoints x 2 matrix)
+    """
+    with open(filename, 'r') as f:
+        metadata = {}
+        spectral_data = []
+        deltax = None
+        minx=None
+        in_spectral_data = False
+
+        for line in f:
+            line = line.strip()
+
+            # Handle metadata (key-value pairs)
+            if '=' in line and not in_spectral_data:
+                key, value = line.split('=', 1)
+                metadata[key.strip('# ').upper()] = value.strip()
+
+                # Capture DELTAX value for interpolation
+                if 'DELTAX' in metadata:
+                    deltax = float(metadata['DELTAX'])
+
+                # Capture MINX as lower x bound
+                if 'MINX' in metadata:
+                    minx = float(round(float(metadata['MINX'])))   
+
+                # Start collecting spectral data
+                if '##XYDATA' in line or '##PEAKTABLE' in line:
+                    in_spectral_data = True
+                    continue
+
+            # Handle spectral data (X followed by multiple Y values)
+            elif in_spectral_data:
+                if line.startswith('##END'):
+                    in_spectral_data = False
+                    continue
+
+                # Parse the X value and subsequent Y values
+                values = line.split()
+                x_value = float(values[0])  # First value is the X value
+                y_values = [float(y) for y in values[1:]]  # Remaining values are Y values
+
+                # Calculate corresponding X values based on DELTAX
+                for i, y in enumerate(y_values):
+                    x = x_value + i * deltax
+                    spectral_data.append((x, y))
+
+        # Round X values to nearest integer but keep them as floats in the data
+        #spectral_data = [(round(x), y) for x, y in spectral_data]
+
+        return metadata, spectral_data, minx
+

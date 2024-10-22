@@ -4,9 +4,10 @@ from ase.data import atomic_masses
 from ase.units import Bohr,Hartree
 from ._vibtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lorentzian_broadening
 
-from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE
+from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE, read_jdx
 from .filetypes import check_ASE_readable
-from .utils import SIS
+from .filetypes import FileFormatChecker,register_default_formats
+from .utils import SIS,process_exp_spectrum
 
 class vibtoolsCalculator:
     def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, 
@@ -36,6 +37,8 @@ class vibtoolsCalculator:
         self.freq = None
         self.intens = None
         self.filename = None
+        self.expspec = False
+        self.expmin = None
         # Plotting parameters
         self.normconst = 1.0
         self.xmin = 100.0   # in cm⁻¹
@@ -68,25 +71,42 @@ class vibtoolsCalculator:
 
         if hessfile is not None:
            self.hessian = read_hessian(hessfile)
-           #print(self.hessian)
  
         if dipfile is not None:
            self.dipole_gradient = read_dipgrad(dipfile)
-           #print(self.dipole_gradient) 
 
         if vibspecfile is not None:
-           self.freq, self.intens = read_freqint(vibspecfile)  
-           if self.freq is not None and self.intens is not None:
-              self.filename=vibspecfile 
+          checker = FileFormatChecker()
+          register_default_formats(checker)
+          file_type = checker.check_format(vibspecfile)
+      
+          if file_type is None:
+              print(f"File '{vibspecfile}' does not exist or has an unknown format.")
+          elif file_type == "TM_vibspectrum":
+              self.freq, self.intens = read_freqint(vibspecfile)  
+              if self.freq is not None and self.intens is not None:
+                 self.filename=vibspecfile 
+          elif file_type == "JDX_experimental":
+              _, spectral_data, self.expmin = read_jdx(vibspecfile)
+              self.freq, self.intens = zip(*spectral_data)
+              if self.freq is not None and self.intens is not None:
+                 self.filename=vibspecfile
+              self.expspec = True 
+              self.freq = np.array(self.freq)
+              self.intens = np.array(self.intens)
 
     def compute(self):
         """
         Compute the vibrational spectrum using the Fortran routine.
+        Does nothing for read-in experimental spectra
 
         Returns:
         freq (numpy.ndarray): The computed frequencies.
         intens (numpy.ndarray): The computed intensities.
         """
+        if self.expspec:
+          # Do nothing for experimental spectra
+          return self.freq, self.intens
         if self.atoms is None:
           raise ValueError("The ASE atoms object is required for frequency calculation")
         if self.hessian is None:
@@ -156,9 +176,17 @@ class vibtoolsCalculator:
         tmpfreq = np.copy(self.freq) * self.fscal
         npoints = int(np.round(np.abs(self.xmin - self.xmax) / self.dx)) + 1
         self.spec = np.ascontiguousarray(np.zeros(npoints, dtype=np.float64))
-        py_lorentzian_broadening(nmodes=nmodes, freq=tmpfreq, intens=self.intens,
-                                 xmin=self.xmin, xmax=self.xmax, dx=self.dx,
-                                 fwhm=self.fwhm, npoints=npoints, plt=self.spec)
+        if self.expspec:
+           spectral_data = list(zip(self.freq,self.intens))
+           spectral_data = process_exp_spectrum(spectral_data, 
+                                                self.dx, xmin=self.xmin,
+                                                xmax=self.xmax)
+           _,self.spec = zip(*spectral_data)
+           self.spec = np.array(self.spec)
+        else:
+           py_lorentzian_broadening(nmodes=nmodes, freq=tmpfreq, intens=self.intens,
+                                    xmin=self.xmin, xmax=self.xmax, dx=self.dx,
+                                    fwhm=self.fwhm, npoints=npoints, plt=self.spec)
 
     def plot(self, color='b', linewidth=2, figsize=(9, 6), save=None, 
              sticks=False, stickmarker='None'):
@@ -265,7 +293,7 @@ class vibtoolsCalculator:
       
         elif scheme == 'msc':
             # A normalization scheme that was in the orignal specmatch code     
-            # I think it should be equivalent to the sum scheme if dx=1, no idae why it exists
+            # I think it should be equivalent to the sum scheme if dx=1, no idea why it exists
             summe = 0.0
             sqrt_spec = np.sqrt(self.spec)
             for value in sqrt_spec:
@@ -276,6 +304,16 @@ class vibtoolsCalculator:
             raise ValueError(f"Unknown normalization scheme: {scheme}")
     
         return self.normconst
+
+#########################################################################################
+
+def calc_autorange(calc1, calc2, autox=None):
+    if autox:
+       expmin = max(filter(None, [calc1.expmin, calc2.expmin]), default=calc1.xmin)
+       calc1.xmin = expmin
+    calc2.xmin = calc1.xmin
+    calc2.xmax = calc1.xmax
+    calc2.dx = calc1.dx
 
 
 #########################################################################################
@@ -294,6 +332,7 @@ def matchscore(calc1, calc2):
     Returns:
     - A dictionary containing r_msc, r_euc, r_pcc
     """
+
     # Ensure the first calculator's spectrum is computed and broadened
     if calc1.freq is None or calc1.intens is None:
         calc1.compute()
