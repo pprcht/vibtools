@@ -96,6 +96,50 @@ void py_lorentzian_broadening(int nmodes, py::array_t<double> freq,
                           xmin, xmax, dx, fwhm);
 }
 
+
+py::tuple py_compute_thermodynamics(int32_t nat, 
+                                    py::array_t<int32_t> at,
+                                    py::array_t<double> xyz,
+                                    int32_t nfreq,
+                                    py::array_t<double> freq,
+                                    double T, double sthr, double ithr, int32_t rotnum) {
+
+  // Request buffer information for input arrays
+  auto at_buf = at.request();
+  auto xyz_buf = xyz.request();
+  auto freq_buf = freq.request();
+
+  // Dimension checks for input arrays
+  if (at_buf.ndim != 1 || at_buf.shape[0] != nat) {
+    throw std::runtime_error("Invalid dimensions for 'at'");
+  }
+  if (xyz_buf.ndim != 2 || xyz_buf.shape[0] != nat || xyz_buf.shape[1] != 3) {
+    throw std::runtime_error("Invalid dimensions for 'xyz'");
+  }
+  if (freq_buf.ndim != 1 || freq_buf.shape[0] != nfreq) {
+    throw std::runtime_error("Invalid dimensions for 'freq'");
+  }
+
+  // Get pointers to input data
+  int32_t *at_ptr = static_cast<int32_t *>(at_buf.ptr);
+  double (*xyz_ptr)[3] = reinterpret_cast<double (*)[3]>(xyz_buf.ptr);
+  double *freq_ptr = static_cast<double *>(freq_buf.ptr);
+
+  // Prepare output scalars
+  double zpve_val, et_val, ht_val, ts_val, g_val;
+
+  // Call the Fortran routine
+  c_compute_thermodynamics(nat, at_ptr, xyz_ptr, nfreq, freq_ptr,
+                           T, sthr, ithr, rotnum,
+                           &zpve_val, &et_val, &ht_val, &ts_val, &g_val);
+
+  // Return as a Python tuple of scalars
+  return py::make_tuple(zpve_val, et_val, ht_val, ts_val, g_val);
+}
+
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 PYBIND11_MODULE(_vibtools, m) {
   m.doc() = "Python bindings for vibtools";
@@ -112,6 +156,11 @@ PYBIND11_MODULE(_vibtools, m) {
         py::arg("freq"), py::arg("intens"), py::arg("npoints"),
         py::arg("plt"), py::arg("xmin"), py::arg("xmax"), py::arg("dx"),
         py::arg("fwhm"));
+  m.def("py_compute_thermodynamics", &py_compute_thermodynamics,
+      "Compute thermodynamic quantities, returns a tuple",
+      py::arg("nat"), py::arg("at"), py::arg("xyz"), py::arg("nfreq"),
+      py::arg("freq"), py::arg("T"), py::arg("sthr"), py::arg("ithr"),
+      py::arg("rotnum"));
 
 #ifdef VERSION_INFO
   m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

@@ -34,6 +34,9 @@ list(APPEND srcs
   "${dir}/maths.f90"
   "${dir}/core.f90"
   "${dir}/plot.f90"
+  "${dir}/thermo.f90"
+  "${dir}/axis_module.f90"
+  "${dir}/statmech.f90" 
   "${dir}/C_interface.F90"
 )
 
