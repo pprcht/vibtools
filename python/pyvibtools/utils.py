@@ -106,4 +106,113 @@ def process_exp_spectrum(spectral_data, dx, xmin=None, xmax=None):
         interpolated_spectrum = [(x, y) for x, y in interpolated_spectrum if x <= xmax]
 
     return interpolated_spectrum
-   
+ 
+
+def get_symnum(sym):
+    sym = sym.lower()  # Convert to lowercase
+    symnum = 1 # Assume C1 as standard
+    if 'c2' in sym or 's4' in sym:
+        symnum = 2
+    elif 'c3' in sym or 's6' in sym:
+        symnum = 3
+    elif 'c4' in sym or 's8' in sym:
+        symnum = 4
+    elif 'c5' in sym:
+        symnum = 5
+    elif 'c6' in sym:
+        symnum = 6
+    elif 'c7' in sym:
+        symnum = 7
+    elif 'c8' in sym:
+        symnum = 8
+    elif 'c9' in sym:
+        symnum = 9
+    elif 'd2' in sym:
+        symnum = 4
+    elif 'd3' in sym:
+        symnum = 6
+    elif 'd4' in sym:
+        symnum = 8
+    elif 'd5' in sym:
+        symnum = 10
+    elif 'd6' in sym:
+        symnum = 12
+    elif 'd7' in sym:
+        symnum = 14
+    elif 'd8' in sym:
+        symnum = 16
+    elif 'd9' in sym:
+        symnum = 18
+    elif 't' in sym or 'td' in sym or 'th' in sym:
+        symnum = 12
+    elif 'o' in sym or 'oh' in sym:
+        symnum = 24
+    elif 'ih' in sym:
+        symnum = 60
+    return symnum
+  
+
+def print_thermo_setup(num_frequencies: int, num_imag: int, symmetry: str,
+    rotational_number: int, scaling_factor: float, rotor_cutoff: float,
+    imaginary_cutoff: float, temperature: float):
+    # Header and footer for the box
+    top_border = "   ..................................................."
+    title = "   :                  THERMO SETUP                   :"
+    separator = "   :.................................................:"
+
+    # Body with formatted entries
+    body = [
+        f"   :  # frequencies                          {num_frequencies:<6}  :",
+        f"   :  # imaginary                            {num_imag:<6}  :",
+        f"   :  temperature                        {temperature:.2f} K    :",
+        f"   :  symmetry                               {symmetry:<6}  :",
+        f"   :  rotational number                       {rotational_number:<6} :",
+        f"   :  scaling factor                  {scaling_factor:<10.7f}     :",
+        f"   :  rotor cutoff                   {rotor_cutoff:<10.7f} cm⁻¹ :",
+        f"   :  imag. cutoff                  {imaginary_cutoff:<10.7f} cm⁻¹ :",
+    ]
+    # Assemble the printout
+    printout = "\n".join([top_border, title, separator] + body + [separator])
+    print(printout+"\n")
+
+
+def print_thermo_results(data):
+    """
+    Prints the dictionary containing the thermo results.
+    
+    Parameters:
+        data (dict[str, any]): The dictionary containing quantities and their values.
+    """
+    # Header
+    title  = 'THERMO Results'
+    separator = '=============='
+    
+    zpve = data["zpve"]
+    enthalpy = data["enthalpy"]    
+    et = data["H(T)"]
+    entropy = data["T*S"]/data["temperature"]
+    ts = -data["T*S"]
+    gt = data["G(T)"]
+    cp = data["Cp(T)"]
+
+    to_kcal = 627.5095
+    to_cal = to_kcal*1000.0
+
+    body = [
+        f" Heat capacity [Cp(T)]      {cp:<.8e} Eh, {cp*to_cal:<.8e} cal/mol/K\n",
+        f" ZPVE                       {zpve:<.8e} Eh  ",
+        f" Enthalpy [H(0)-H(T)+PV]    {enthalpy:<.8e} Eh",
+        f" -------------------------------------------",
+        f"                            {et:<.8e} Eh\n",
+        f" Entropy [S]                {entropy:.8e} Eh, {entropy*to_cal:.8e} cal/mol/K",
+        f" -T*S                      {ts:.8e} Eh\n",
+        f" Free energy [H-T*S]        {gt:.8e} Eh, {gt*to_kcal:.8e} kcal/mol",
+    ]
+    printout = "\n".join([title, separator] + body)
+    print(printout+"\n")
+
+    
+ 
+
+
+

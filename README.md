@@ -25,6 +25,8 @@ The directory contrains the following required files:
 - [`struc.xyz`](example/struc.xyz), the input geometry at which dipole derivatives and the Hessian were calculated
 - [`dipgrad`](example/dipgrad), a plain-text file with the 9N<sub>at</sub> entries (3x3N<sub>at</sub>) that are the Cartesian dipole derivatives in atomic units
 - [`numhess`](example/numhess), the seminumerical Hessian (non-massweighted, in Hartree and Bohr) here in the Turbomole output format. A plain-text format with 3N<sub>at</sub> lines á 3N<sub>at</sub> entries is also valid input.
+- [`thermo.ipynb`](example/thermo.ipynb) An example for the use of the `thermo` routine for thermostatistical evaluation of the molecular thermodynamics (see below).
+
 
 Additionally the [`vibspectrum.ref`](example/vibspectrum.ref) file provides a higher-level reference spectrum.
 
@@ -39,7 +41,9 @@ The help menu (`pyvibtools -h`) will output:
 <summary>cli output (dropdown tab, click here)</summary>
 
 ```
-usage: pyvibtools [-h] -i FILE [-hess FILE] [-dip FILE] [-s <float>] [-o FILE] [--plot] [-msc FILE2]
+usage: pyvibtools [-h] -i FILE [-hess FILE] [-dip FILE] [-xyz FILE] [-o FILE] [--plot]
+                  [--multiplot FILE [FILE ...]] [-ocsv] [-msc FILE2] [--thermo] [-s <float>]
+                  [-xmin <float>] [-xmax <float>] [--autox] [-dx <int>]
 
 A program to process vibrational spectra.
 
@@ -57,20 +61,38 @@ General Options:
   -dip FILE, --dipole-gradient FILE
                         Specify Cartesian dipole derivative input file. Dipole gradient must be in
                         atomic units (charge, Bohr)
-  -s <float>, --scal <float>
-                        Specify a linear frequency scaling factor
+  -xyz FILE             Specify the used structure explicitly. For use in combination with -i to
+                        read in a vibspectrum.
   -o FILE, --output FILE
                         Specify the output file (written in TM vibspectrum format)
 
 Processing/Plotting Options:
   These options will be applied to the spectrum and are useful for additional processing, like
-  plotting or comparing spectra via match scores
+  plotting or comparing spectra via match scores.
 
   --plot                Apply Lorentzian line shapes to a the computed/read spectrumand plot via
                         matplotlib.
+  --multiplot FILE [FILE ...], -mp FILE [FILE ...]
+                        One or more files to plot together with -i
+  -ocsv                 Write the spectrum (additionally) to vibspectrum.csv
   -msc FILE2, --matchscore FILE2
                         Specify vibrational spectrum file for matchscore calculation comparing the
                         computed/read-in (-i) spectrum with FILE2
+  --thermo              Evaluate molecular partition functions and calculate ZPVE, enthalpy,
+                        entropy and free energy.
+
+Spectral Data Processing Parameters:
+  These options are used to define parameters for the spectra processing via the CLI. These
+  options will be primarily applied to the spectrum defined via the -i argument.
+
+  -s <float>, --scal <float>
+                        Specify a linear frequency scaling factor
+  -xmin <float>         Specify minimum frequency value considered for spectra processing
+  -xmax <float>         Specify maximum frequency value considered for spectra processing
+  --autox               Allow automatic determination of frequency range if at least one spectrum
+                        is experimental
+  -dx <int>             Specify frequency interval considered for spectra processing. The minimum
+                        value is 1 cm⁻¹
 ```
 </details>
 
@@ -117,6 +139,45 @@ to each frequency/intensity pair (here $\nu_p = \tilde{\nu_p}$ and $I_p = A_{\ti
 
 ![IR spectrum for the example](assets/spectrum.png)
 
+
+### Thermodynamics evaluation
+
+`pyvibtools` includes functions for thermostatistical evaluation of the molecular modes via the **`thermo`** routine. The implementation includes Grimme's rigid-rotor/harmonic-oscillator interpolation of the vibrational entropy (see [S. Grimme, *Chem. Eur. J.*, **2012**, *18*, 9955-9964](https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/chem.201200497) and [P. Pracht, S. Grimme, *Chem. Sci.*, **2021**, *12*,
+6551-6568](https://pubs.rsc.org/en/content/articlelanding/2021/sc/d1sc00621e)).
+
+A use-case example can be found in the dedicated Jupyter notebook [`example/thermo.ipynb`](example/thermo.ipynb).
+
+The `thermo`-evaluation provides the following output:
+```
+   ...................................................
+   :                  THERMO SETUP                   :
+   :.................................................:
+   :  # frequencies                          36      :
+   :  # imaginary                            0       :
+   :  temperature                        298.15 K    :
+   :  symmetry                               c1      :
+   :  rotational number                       1      :
+   :  scaling factor                  1.0000000      :
+   :  rotor cutoff                   25.0000000 cm⁻¹ :
+   :  imag. cutoff                  -50.0000000 cm⁻¹ :
+   :.................................................:
+
+THERMO Results
+==============
+ Heat capacity [Cp(T)]      5.23251990e-05 Eh, 3.28345595e+01 cal/mol/K
+
+ ZPVE                       9.20042114e-02 Eh  
+ Enthalpy [H(0)-H(T)+PV]    9.47053317e-03 Eh
+ -------------------------------------------
+                            1.01474745e-01 Eh
+
+ Entropy [S]                1.49488492e-04 Eh, 9.38054486e+01 cal/mol/K
+ -T*S                      -4.45699938e-02 Eh
+
+ Free energy [H-T*S]        5.69047508e-02 Eh, 3.57082717e+01 kcal/mol
+```
+
+The free energy contribution calculated here is **additive** to the total (electronic) energy.
 
 
 ---
@@ -192,6 +253,6 @@ to write a plain-text `spectrum.txt`
 
  * [x] Interface Fortran/C to Python
  * [x] Create `ipynb` example
- * [ ] Implement thermodynamics evaluation
+ * [x] Implement thermodynamics evaluation
  * [ ] Implement Hessian/dipole gradient readers for other programs
  * [ ] Implement other types of doubly-harmonic spectra (Raman?) 

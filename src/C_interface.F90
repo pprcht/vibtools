@@ -32,12 +32,14 @@ module vibtools_c_interface
   use vibtools_maths
   use vibtools_core
   use vibtools_plot
+  use vibtools_statmech
   implicit none
   private
 
   public :: c_computespec_core
   public :: c_print_vib_spectrum_stdout
   public :: c_lorentzian_broadening
+  public :: c_compute_thermodynamics
 
 !========================================================================================!
 !========================================================================================!
@@ -140,6 +142,65 @@ end subroutine c_print_vib_spectrum_stdout
     call c_f_pointer(c_loc(c_plt),plt, [c_npoints])
     call lorentzian_broadening(nmodes,freq,intens,npoints,plt,xmin,xmax,dx,fwhm)
   end subroutine c_lorentzian_broadening
+
+!========================================================================================!
+
+
+  subroutine c_compute_thermodynamics(c_nat,c_at,c_xyz,c_nfreq,c_freq, &
+    &                                 c_T,c_sthr,c_ithr, c_rotnum, &
+    &                                 c_zpve, c_et, c_ht, c_ts, c_cp, c_g) &
+    &                        bind(C,name="c_compute_thermodynamics")
+    implicit none
+    !> Input arguments from C
+    integer(c_int),value,intent(in)  :: c_nat
+    integer(c_int),target,intent(in) :: c_at(*)
+    real(c_double),target,intent(in) :: c_xyz(3,*) !> NOTE Fortran/C matrix orders
+    integer(c_int),value,intent(in)  :: c_nfreq
+    real(c_double),target,intent(in) :: c_freq(c_nfreq)
+    real(c_double),value,intent(in)  :: c_T
+    real(c_double),value,intent(in)  :: c_sthr
+    real(c_double),value,intent(in)  :: c_ithr
+    integer(c_int),value,intent(in)  :: c_rotnum
+    !> Output arguments to C
+    real(c_double),target,intent(out) :: c_zpve
+    real(c_double),target,intent(out) :: c_et     
+    real(c_double),target,intent(out) :: c_ht
+    real(c_double),target,intent(out) :: c_ts
+    real(c_double),target,intent(out) :: c_cp
+    real(c_double),target,intent(out) :: c_g
+
+
+    !> Local variables
+    integer :: nat,nfreq,rotnum
+    real(wp) :: T,sthr,ithr
+    integer,pointer :: at(:)
+    real(wp),pointer :: xyz(:,:)
+    real(wp),pointer :: freq(:)
+    real(wp) :: zpve,et,ht,ts,cp,g
+
+    nat = c_nat
+    nfreq = c_nfreq
+    T = c_T
+    sthr = c_sthr
+    ithr = c_ithr
+    rotnum = c_rotnum
+
+    call c_f_pointer(c_loc(c_at),at, [c_nat])
+    call c_f_pointer(c_loc(c_xyz),xyz, [3,c_nat]) !> Assumes xyz[nat][3] in C     
+    call c_f_pointer(c_loc(c_freq),freq, [c_nfreq])
+  
+    call compute_thermodynamics(nat,at,xyz,nfreq,freq,T,rotnum, &
+    &                           ithr,sthr, zpve,et,ht,ts,cp,g)
+
+    c_zpve = zpve
+    c_et = et
+    c_ht = ht
+    c_ts = ts
+    c_cp = cp
+    c_g = g
+
+
+  end subroutine c_compute_thermodynamics
 
 !========================================================================================!
 !========================================================================================!

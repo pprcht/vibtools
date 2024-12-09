@@ -3,11 +3,12 @@ from ase import Atoms
 from ase.data import atomic_masses
 from ase.units import Bohr,Hartree
 from ._vibtools import py_computespec_core, py_print_vib_spectrum_stdout, py_lorentzian_broadening
-
+from ._vibtools import py_compute_thermodynamics
 from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE, read_jdx
 from .filetypes import check_ASE_readable
 from .filetypes import FileFormatChecker,register_default_formats
-from .utils import SIS,process_exp_spectrum
+from .utils import SIS,process_exp_spectrum,get_symnum
+from .utils import print_thermo_setup,print_thermo_results
 
 class vibtoolsCalculator:
     def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, 
@@ -47,6 +48,11 @@ class vibtoolsCalculator:
         self.fwhm = 30.0    # for Lorentzian broadening
         self.IR_CUTOFF = 10.0  # in km/mol (just for determining IR activity)
         self.spec = None
+        # Thermo evaluation parameters
+        self.ithr = -50.0
+        self.sthr = 25.0
+        self.sym = 'c1' 
+        self.T = 298.15
 
         # Initialize the amass array with atomic masses for elements 1-118
         self.amass = np.zeros(118, dtype=np.float64)
@@ -305,52 +311,120 @@ class vibtoolsCalculator:
     
         return self.normconst
 
+
+    def thermo(self, T: float=None, ithr: float=None, sthr: float=None, 
+               fscal: float=None, sym: str=None, verbosity: int=0):
+        """
+        Evaluate thermodynamics for a given spectrum. 
+        Requires frequencies and a molecular structure for the partition functions.
+    
+        Parameters:
+        - T (float, optional): Temperature
+        - ithr (float, optional): inversion threshold
+        - sthr (float, optional): interpolation threshold
+        - sym (str, optional): Symmetry symbol
+        - verbosity (int, optional): Level of verbosity for logging/debugging (default is 0)
+        """
+        if self.freq is None:
+            self.compute()
+
+        if self.atoms is None:
+           raise ValueError(f"Molecular thermodynamics evaluation requires input coordinates!")
+
+        if T is not None:
+            self.T = T
+
+        if ithr is not None:
+            self.ithr = ithr
+
+        if sthr is not None:
+            self.sthr = sthr
+  
+        if fscal is not None:
+            self.fscal = fscal
+
+        if sym is not None:
+            self.sym = sym
+
+        nat = len(self.atoms)
+        at = self.atoms.get_atomic_numbers().astype(np.int32)
+        xyz = self.atoms.get_positions().astype(np.float64)
+        rotnum = get_symnum(self.sym)
+        nfreq = len(self.freq)
+        tmpfreq = np.copy(self.freq) * self.fscal
+
+        if verbosity > 0:
+            nvibs=0
+            ninv=0
+            for f_i in self.freq:
+                if np.abs(f_i) > 0.05:
+                    nvibs += 1
+                    if f_i < 0.0:
+                       ninv += 1
+            print_thermo_setup(nvibs, ninv, self.sym, rotnum, self.fscal, 
+                               self.sthr, self.ithr, self.T)
+
+        values = py_compute_thermodynamics(nat,at,xyz,nfreq,tmpfreq,self.T,
+                                           self.sthr,self.ithr,rotnum)
+
+        keys = ['zpve','H(T)','enthalpy','T*S','Cp(T)','G(T)']
+        results = dict(zip(keys,values))
+        results['temperature'] = self.T
+
+        if verbosity > 0:
+           #print(results)
+           print_thermo_results(results)
+
+        return results
+                
+
+
 #########################################################################################
 
-def calc_autorange(calc1, calc2, autox=None):
+def calc_autorange(vibspec1, vibspec2, autox=None):
     if autox:
-       expmin = max(filter(None, [calc1.expmin, calc2.expmin]), default=calc1.xmin)
-       calc1.xmin = expmin
-    calc2.xmin = calc1.xmin
-    calc2.xmax = calc1.xmax
-    calc2.dx = calc1.dx
+       expmin = max(filter(None, [vibspec1.expmin, vibspec2.expmin]), default=vibspec1.xmin)
+       vibspec1.xmin = expmin
+    vibspec2.xmin = vibspec1.xmin
+    vibspec2.xmax = vibspec1.xmax
+    vibspec2.dx = vibspec1.dx
 
 
 #########################################################################################
 
 
-def matchscore(calc1, calc2):
+def matchscore(vibspec1, vibspec2):
     """
     Calculate the match score (r_msc), Euclidean norm (r_euc), 
     and Pearson correlation coefficient (r_pcc) between 
     two vibtoolsCalculator objects using their self.spec arrays.
     
     Parameters:
-    - calc1: The first vibtoolsCalculator object.
-    - calc2: The second vibtoolsCalculator object.
+    - vibspec1: The first vibtoolsCalculator object.
+    - vibspec2: The second vibtoolsCalculator object.
     
     Returns:
     - A dictionary containing r_msc, r_euc, r_pcc
     """
 
     # Ensure the first calculator's spectrum is computed and broadened
-    if calc1.freq is None or calc1.intens is None:
-        calc1.compute()
-    if calc1.spec is None:
-        calc1.broaden()
+    if vibspec1.freq is None or vibspec1.intens is None:
+        vibspec1.compute()
+    if vibspec1.spec is None:
+        vibspec1.broaden()
     # The two normalizations should be consistent with the newspecmatch code
-    C1 = calc1.normalize()
-    u = (np.array(np.copy(calc1.spec), dtype=np.float64) * C1)
+    C1 = vibspec1.normalize()
+    u = (np.array(np.copy(vibspec1.spec), dtype=np.float64) * C1)
     y_pred = u/np.sum(u) # different normalization for SIS
 
     # Ensure the second calculator's spectrum is computed and broadened
-    if calc2.freq is None or calc2.intens is None:
-        calc2.compute()
-    if calc2.spec is None:
-        calc2.broaden()
+    if vibspec2.freq is None or vibspec2.intens is None:
+        vibspec2.compute()
+    if vibspec2.spec is None:
+        vibspec2.broaden()
     # Ensure the second calculator's spectrum is computed and broadened
-    C2 = calc2.normalize()
-    v = (np.array(np.copy(calc2.spec), dtype=np.float64) * C2)
+    C2 = vibspec2.normalize()
+    v = (np.array(np.copy(vibspec2.spec), dtype=np.float64) * C2)
     y_target = v/np.sum(v) # different normalization for SIS
 
     # Get the sqrt of the spectra arrays (consistency with the newspecmatch code)

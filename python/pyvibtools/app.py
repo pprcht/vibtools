@@ -27,6 +27,9 @@ def main():
     general_group.add_argument('-dip','--dipole-gradient', type=str, metavar='FILE', default=None,
                         help=('Specify Cartesian dipole derivative input file. '
                               'Dipole gradient must be in atomic units (charge, Bohr)'))
+    general_group.add_argument('-xyz', type=str, metavar='FILE', default=None,
+                        help=('Specify the used structure explicitly. For use in combination '
+                              'with -i to read in a vibspectrum.')) 
     general_group.add_argument('-o', '--output', type=str, metavar='FILE', default=None,
                         help=("Specify the output file (written in TM vibspectrum format)"))
 
@@ -46,6 +49,10 @@ def main():
     function_group.add_argument('-msc','--matchscore', type=str, metavar='FILE2', default=None,
                         help="Specify vibrational spectrum file for matchscore calculation "
                              "comparing the computed/read-in (-i) spectrum with FILE2")
+    function_group.add_argument('--thermo', action='store_true',
+                        help=("Evaluate molecular partition functions and calculate ZPVE,"
+                              " enthalpy, entropy and free energy."))
+
 
 #######################
 
@@ -82,6 +89,9 @@ def main():
 
     # Read files
     vibspec1.read(xyzfile=args.file, hessfile=args.hessian, dipfile=args.dipole_gradient)
+
+    if args.xyz:
+       vibspec1.read(xyzfile=args.xyz) 
 
     # More arguments from argparser that may affect further processing    
     if args.scal:
@@ -142,6 +152,11 @@ def main():
        print(f"\nMatchscores:")
        print('%10s %10s %10s %10s' % ('MSC','EUC','PCC','SIS')) 
        print('%10.4f %10.4f %10.4f %10.4f' % (mscs[0], mscs[1], mscs[2], mscs[3])) 
+
+
+    # Thermo
+    if args.thermo:
+        results = vibspec1.thermo(verbosity=1)  
 
 
 ########################################################################################

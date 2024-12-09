@@ -22,6 +22,16 @@ void c_lorentzian_broadening(int c_nmodes, const double *c_freq,
                              double *c_plt, double c_xmin, double c_xmax,
                              double c_dx, double c_fwhm);
 
+
+// Declaration of the thermodynamics evaluation
+extern void c_compute_thermodynamics(int c_nat, int *c_at, double (*c_xyz)[3],
+                                     int c_nfreq, double *c_freq,
+                                     double c_T, double c_sthr, double c_ithr,
+                                     int c_rotnum,
+                                     double *c_zpve, double *c_et, double *c_ht,
+                                     double *c_ts, double *c_cp, double *c_g);
+
+
 #ifdef __cplusplus
 }
 #endif

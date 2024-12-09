@@ -76,3 +76,4 @@ def export_vibspectrum_to_csv(calc: vibtoolsCalculator, outfile='vibspectrum.csv
     # Save to CSV file
     df.to_csv(outfile, index=False)
 
+
