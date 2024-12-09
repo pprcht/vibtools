@@ -8,7 +8,7 @@ from .readers import read_freqint, read_hessian, read_dipgrad, read_ASE, read_jd
 from .filetypes import check_ASE_readable
 from .filetypes import FileFormatChecker,register_default_formats
 from .utils import SIS,process_exp_spectrum,get_symnum
-from .utils import print_thermo_setup
+from .utils import print_thermo_setup,print_thermo_results
 
 class vibtoolsCalculator:
     def __init__(self, atoms: Atoms=None, hessian: np.ndarray=None, 
@@ -364,12 +364,16 @@ class vibtoolsCalculator:
             print_thermo_setup(nvibs, ninv, self.sym, rotnum, self.fscal, 
                                self.sthr, self.ithr, self.T)
 
-        results = py_compute_thermodynamics(nat,at,xyz,nfreq,tmpfreq,self.T,
-                                            self.sthr,self.ithr,rotnum)
+        values = py_compute_thermodynamics(nat,at,xyz,nfreq,tmpfreq,self.T,
+                                           self.sthr,self.ithr,rotnum)
 
+        keys = ['zpve','H(T)','enthalpy','T*S','Cp(T)','G(T)']
+        results = dict(zip(keys,values))
+        results['temperature'] = self.T
 
         if verbosity > 0:
-           print(results)
+           #print(results)
+           print_thermo_results(results)
 
         return results
                 

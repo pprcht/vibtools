@@ -126,15 +126,15 @@ py::tuple py_compute_thermodynamics(int32_t nat,
   double *freq_ptr = static_cast<double *>(freq_buf.ptr);
 
   // Prepare output scalars
-  double zpve_val, et_val, ht_val, ts_val, g_val;
+  double zpve_val, et_val, ht_val, ts_val, cp_val, g_val;
 
   // Call the Fortran routine
   c_compute_thermodynamics(nat, at_ptr, xyz_ptr, nfreq, freq_ptr,
                            T, sthr, ithr, rotnum,
-                           &zpve_val, &et_val, &ht_val, &ts_val, &g_val);
+                           &zpve_val, &et_val, &ht_val, &ts_val, &cp_val, &g_val);
 
   // Return as a Python tuple of scalars
-  return py::make_tuple(zpve_val, et_val, ht_val, ts_val, g_val);
+  return py::make_tuple(zpve_val, et_val, ht_val, ts_val, cp_val, g_val);
 }
 
 

@@ -29,7 +29,7 @@ extern void c_compute_thermodynamics(int c_nat, int *c_at, double (*c_xyz)[3],
                                      double c_T, double c_sthr, double c_ithr,
                                      int c_rotnum,
                                      double *c_zpve, double *c_et, double *c_ht,
-                                     double *c_ts, double *c_g);
+                                     double *c_ts, double *c_cp, double *c_g);
 
 
 #ifdef __cplusplus

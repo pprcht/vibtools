@@ -46,7 +46,7 @@ contains  !> MODULE PROCEDURES START HERE
 !========================================================================================!
 
 subroutine thermodyn(iunit,A_rcm,B_rcm,C_rcm,avmom_si,linear,atom,sym,molmass, &
-      &              vibs,nvibs,T,sthr_rcm,et,ht,g,ts,zp,pr)
+      &              vibs,nvibs,T,sthr_rcm,et,ht,g,ts,cp,zp,pr)
    use iso_fortran_env, only : wp => real64
    implicit none
    integer, intent(in)  :: iunit       !< output_unit
@@ -63,6 +63,7 @@ subroutine thermodyn(iunit,A_rcm,B_rcm,C_rcm,avmom_si,linear,atom,sym,molmass, &
    real(wp),intent(out) :: ht          !< enthalpy in Eh
    real(wp),intent(out) :: g           !< free energy in Eh
    real(wp),intent(out) :: ts          !< entropy in Eh
+   real(wp),intent(out) :: cp          !< heat capacity in Eh
    real(wp),intent(in)  :: zp          !< zero point vibrational energy in Eh
    real(wp),intent(in)  :: vibs(nvibs) !< vibrational frequencies in Eh
    logical, intent(in)  :: linear      !< is linear
@@ -212,6 +213,7 @@ subroutine thermodyn(iunit,A_rcm,B_rcm,C_rcm,avmom_si,linear,atom,sym,molmass, &
    ht=h_tot/1000.0_wp*kcaltoau
    et=ht+zp
    ts=s_tot*t/1000.0_wp*kcaltoau
+   cp=cptot/1000.0_wp*kcaltoau
 
    g=et-ts
 

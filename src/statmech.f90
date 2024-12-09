@@ -48,7 +48,7 @@ contains  !> MODULE PROCEDURES START HERE
 !========================================================================================!
 
   subroutine compute_thermodynamics(nat,at,xyz,nfreq,freq,T,rotnum, &
-  &                                 ithr,sthr, zpve,et,ht,ts,g)
+  &                                 ithr,sthr, zpve,et,ht,ts,cp,g)
 !******************************************************************************
 !* Wrapper for thermo calculations.
 !* Requires input structure, frequencies, a symmetry factor, and a temperature.
@@ -68,7 +68,7 @@ contains  !> MODULE PROCEDURES START HERE
     real(wp),intent(in) :: sthr
 
     real(wp),intent(out) ::  zpve
-    real(wp),intent(out) :: et,ht,ts,g
+    real(wp),intent(out) :: et,ht,ts,cp,g
     !> LOCAL
     real(wp) :: A,B,C,rabc(3),avmom
     real(wp) :: symnum,molmass
@@ -133,7 +133,7 @@ contains  !> MODULE PROCEDURES START HERE
 
 !>--- evaluate partition functions and return enthalpy, entropy, heat capacity
     call thermodyn(stdout,A,B,C,avmom,linear,atom,symnum,molmass, &
-      &              vibs,nvib,T,sthr,et,ht,g,ts,zpve,pr)
+      &              vibs,nvib,T,sthr,et,ht,g,ts,cp,zpve,pr)
 
 
     deallocate(vibs)

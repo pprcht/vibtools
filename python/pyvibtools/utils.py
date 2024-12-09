@@ -176,4 +176,43 @@ def print_thermo_setup(num_frequencies: int, num_imag: int, symmetry: str,
     print(printout+"\n")
 
 
+def print_thermo_results(data: dict[str, any]) -> None:
+    """
+    Prints the dictionary containing the thermo results.
+    
+    Parameters:
+        data (dict[str, any]): The dictionary containing quantities and their values.
+    """
+    # Header
+    title  = 'THERMO Results'
+    separator = '=============='
+    
+    zpve = data["zpve"]
+    enthalpy = data["enthalpy"]    
+    et = data["H(T)"]
+    entropy = data["T*S"]/data["temperature"]
+    ts = -data["T*S"]
+    gt = data["G(T)"]
+    cp = data["Cp(T)"]
+
+    to_kcal = 627.5095
+    to_cal = to_kcal*1000.0
+
+    body = [
+        f" Heat capacity [Cp(T)]      {cp:<.8e} Eh, {cp*to_cal:<.8e} cal/mol/K\n",
+        f" ZPVE                       {zpve:<.8e} Eh  ",
+        f" Enthalpy [H(0)-H(T)+PV]    {enthalpy:<.8e} Eh",
+        f" -------------------------------------------",
+        f"                            {et:<.8e} Eh\n",
+        f" Entropy [S]                {entropy:.8e} Eh, {entropy*to_cal:.8e} cal/mol/K",
+        f" -T*S                      {ts:.8e} Eh\n",
+        f" Free energy [H-T*S]        {gt:.8e} Eh, {gt*to_kcal:.8e} kcal/mol",
+    ]
+    printout = "\n".join([title, separator] + body)
+    print(printout+"\n")
+
+    
+ 
+
+
 
