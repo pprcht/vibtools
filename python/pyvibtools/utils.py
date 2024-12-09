@@ -176,7 +176,7 @@ def print_thermo_setup(num_frequencies: int, num_imag: int, symmetry: str,
     print(printout+"\n")
 
 
-def print_thermo_results(data: dict[str, any]) -> None:
+def print_thermo_results(data):
     """
     Prints the dictionary containing the thermo results.
     
